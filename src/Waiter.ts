@@ -1,19 +1,19 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import duration from 'rsup-duration'
+import promiseFinally from './promise-finally'
 import Reserver, { ReserveOptions } from './Reserver'
-import { hasOwn, pFinally } from './util'
 
 export default class Waiter {
     private _reserver = new Reserver()
-    private _pending: Record<string, number> = {}
-    private _listeners: Record<string, Array<() => void>> = {}
+    private _pending: Record<string, number> = Object.create(null)
+    private _listeners: Record<string, Array<() => void>> = Object.create(null)
 
     constructor () {
         this.useWaiter = this.useWaiter.bind(this)
     }
 
-    public reserve (name: string, orderer: () => void, opts: Partial<ReserveOptions> = {}) {
-        this._reserver.reserve(name, orderer, opts)
+    public reserve (name: string, runner: () => void, opts: Partial<ReserveOptions> = {}) {
+        this._reserver.reserve(name, runner, opts)
     }
 
     public hasReserve (name: string) {
@@ -21,10 +21,10 @@ export default class Waiter {
     }
 
     public isWaiting (name: string) {
-        return hasOwn(this._pending, name)
+        return name in this._pending
     }
 
-    public order <T> (name: string, promise?: Promise<T>) {
+    public order <T = void> (name: string, promise?: Promise<T>) {
         if (!promise) {
             if (!this.hasReserve(name)) throw new TypeError(`No reservations for "${name}"`)
             promise = this._reserver.order(name)
@@ -37,7 +37,7 @@ export default class Waiter {
             this._emit(name)
         }
 
-        return pFinally(promise, () => {
+        return promiseFinally(promise, () => {
             if (--this._pending[name] > 0) return
             delete this._pending[name]
             this._emit(name)
@@ -49,7 +49,7 @@ export default class Waiter {
     }
 
     private _addListener (name: string, listener: () => void) {
-        if (!hasOwn(this._listeners, name)) this._listeners[name] = []
+        if (!(name in this._listeners)) this._listeners[name] = []
         this._listeners[name].push(listener)
     }
 
@@ -73,6 +73,7 @@ export default class Waiter {
             const delayer = duration(delay)
             const persister = duration(persist)
             let next: boolean | null = null
+            let unmounted = false
 
             const listener = () => {
                 const curr = this.isWaiting(name)
@@ -87,12 +88,11 @@ export default class Waiter {
 
                 if (curr) {
                     delayer.start().then(() => {
+                        if (unmounted) return
                         setWaiting(true)
                         persister.start().then(() => {
-                            if (next === false) {
-                                next = null
-                                setWaiting(false)
-                            }
+                            if (unmounted) return
+                            if (next === false) setWaiting(false)
                         })
                     })
                 } else {
@@ -101,7 +101,11 @@ export default class Waiter {
             }
 
             this._addListener(name, listener)
-            return () => this._removeListener(name, listener)
+
+            return () => {
+                unmounted = true
+                this._removeListener(name, listener)
+            }
         }, [delay, persist])
 
         return isWaiting

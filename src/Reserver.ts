@@ -1,15 +1,15 @@
 import Deferred from 'p-state-defer'
-import { hasOwn, pFinally } from './util'
+import promiseFinally from './promise-finally'
 
-export interface ReserveOptions { concurrency: number}
+export interface ReserveOptions {concurrency: number}
 
 export default class Reserver {
-    private _sheets: Record<string, [() => void, ReserveOptions]> = {}
-    private _pending: Record<string, number> = {}
-    private _queues: Record<string, Array<Deferred<any>>> = {}
+    private _reserves: Record<string, [() => any, ReserveOptions]> = Object.create(null)
+    private _pending: Record<string, number> = Object.create(null)
+    private _queues: Record<string, Array<Deferred<any>>> = Object.create(null)
 
     public has (name: string) {
-        return hasOwn(this._sheets, name)
+        return name in this._reserves
     }
 
     public reserve (
@@ -17,12 +17,12 @@ export default class Reserver {
         runner: () => void,
         { concurrency = Infinity }: Partial<ReserveOptions> = {}
     ) {
-        this._sheets[name] = [runner, { concurrency }]
+        this._reserves[name] = [runner, { concurrency }]
     }
 
-    public order<T = void> (name: string) {
+    public order<T> (name: string) {
         const defer = new Deferred<T>()
-        const [, opts] = this._sheets[name]
+        const [, opts] = this._reserves[name]
         const count = this._pending[name] || 0
 
         if (count === opts.concurrency) {
@@ -35,7 +35,7 @@ export default class Reserver {
     }
 
     private _addQueue (name: string, defer: Deferred<any>) {
-        if (!hasOwn(this._queues, name)) this._queues[name] = []
+        if (!(name in this._queues)) this._queues[name] = []
         this._queues[name].push(defer)
     }
 
@@ -51,9 +51,9 @@ export default class Reserver {
 
     private _takeOrder (name: string, defer: Deferred<any>) {
         this._pending[name] = (this._pending[name] || 0) + 1
-        const [work] = this._sheets[name]
+        const [runner] = this._reserves[name]
 
-        pFinally(Promise.resolve(work()), () => {
+        promiseFinally(Promise.resolve(runner()), () => {
             if (--this._pending[name] === 0) delete this._pending[name]
             this._runNextQueue(name)
         })
