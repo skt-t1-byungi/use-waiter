@@ -1,137 +1,108 @@
-import Deferred from 'p-state-defer'
 import { useLayoutEffect, useRef, useState } from 'react'
-import createDuration, { duration } from 'rsup-duration'
-import { hasOwn } from './util'
-
-type ReserveRunner = () => any
-interface ReserveOptions { concurrency: number}
+import duration from 'rsup-duration'
+import Reserver, { ReserveOptions } from './Reserver'
+import { hasOwn, pFinally } from './util'
 
 export default class Waiter {
-    private _reverses: Record<string, [ReserveRunner, ReserveOptions]> = {}
-    private _orderCount: Record<string, number> = {}
-    private _reservedOrderCount: Record<string, number> = {}
-    private _queues: Record<string, Array<Deferred<any>>> = {}
+    private _reserver = new Reserver()
+    private _pending: Record<string, number> = {}
     private _listeners: Record<string, Array<() => void>> = {}
 
     constructor () {
         this.useWaiter = this.useWaiter.bind(this)
     }
 
-    public reserve (
-        name: string,
-        runner: ReserveRunner,
-        { concurrency = Infinity }: Partial<ReserveOptions> = {}
-    ) {
-        this._reverses[name] = [runner, { concurrency }]
+    public reserve (name: string, orderer: () => void, opts: Partial<ReserveOptions> = {}) {
+        this._reserver.reserve(name, orderer, opts)
     }
 
     public hasReserve (name: string) {
-        return hasOwn(this._reverses, name)
+        return this._reserver.has(name)
     }
 
     public isWaiting (name: string) {
-        return hasOwn(this._orderCount, name)
+        return hasOwn(this._pending, name)
     }
 
     public order <T> (name: string, promise?: Promise<T>) {
         if (!promise) {
             if (!this.hasReserve(name)) throw new TypeError(`No reservations for "${name}"`)
-            promise = this._makeOrderByReserve(name)
+            promise = this._reserver.order(name)
         }
 
         if (this.isWaiting(name)) {
-            this._orderCount[name]++
+            this._pending[name]++
         } else {
-            this._orderCount[name] = 1
-            this._emitWaitingState(name)
+            this._pending[name] = 1
+            this._emit(name)
         }
 
-        const onFinally = () => {
-            if (--this._orderCount[name] === 0) {
-                delete this._orderCount[name]
-                this._emitWaitingState(name)
-            }
-        }
-
-        return promise.then(
-            val => (onFinally(), val),
-            err => (onFinally(), Promise.reject(err))
-        )
+        return pFinally(promise, () => {
+            if (--this._pending[name] > 0) return
+            delete this._pending[name]
+            this._emit(name)
+        })
     }
 
-    public _emitWaitingState (name: string) {
+    private _emit (name: string) {
         (this._listeners[name] || []).forEach(fn => fn())
     }
 
-    public _makeOrderByReserve <T> (name: string, defer?: Deferred<T>) {
-        if (!defer) defer = new Deferred()
+    private _addListener (name: string, listener: () => void) {
+        if (!hasOwn(this._listeners, name)) this._listeners[name] = []
+        this._listeners[name].push(listener)
+    }
 
-        const [runner, { concurrency }] = this._reverses[name]
-        const count = this._reservedOrderCount[name] || 0
+    private _removeListener (name: string, listener: () => void) {
+        const listeners = this._listeners[name].filter(fn => fn === listener)
 
-        if (count === concurrency) {
-            (this._queues[name] || (this._queues[name] = [])).push(defer)
-            return defer.promise
+        if (listeners.length > 0) {
+            this._listeners[name] = listeners
+        } else {
+            delete this._listeners[name]
         }
-
-        this._reservedOrderCount[name] = count + 1
-
-        const onFinally = () => {
-            if (--this._reservedOrderCount[name] === 0) delete this._reservedOrderCount[name]
-
-            const queue = this._queues[name]
-            if (!queue) return
-
-            const defer = queue.shift()
-            if (queue.length === 0) delete this._queues[name]
-
-            this._makeOrderByReserve(name, defer)
-        }
-
-        Promise.resolve(runner()).then(
-            val => {
-                onFinally()
-                defer!.resolve(val)
-            },
-            err => {
-                onFinally()
-                defer!.reject(err)
-            })
-
-        return defer.promise
     }
 
     public useWaiter (name: string, { delay= 0, persist = 0 } = {}) {
         const [isWaiting, setWaiting] = useState(this.isWaiting(name))
         const prevRef = useRef(isWaiting)
 
-        useLayoutEffect(() => {
-            prevRef.current = isWaiting
-        }, [isWaiting])
+        useLayoutEffect(() => { prevRef.current = isWaiting }, [isWaiting])
 
         useLayoutEffect(() => {
-            const delayer = createDuration(delay)
-            const persister = createDuration(delay + persist)
+            const delayer = duration(delay)
+            const persister = duration(persist)
+            let next: boolean | null = null
 
             const listener = () => {
                 const curr = this.isWaiting(name)
                 const prev = prevRef.current
 
                 if (curr === prev) return
-            }
 
-            (this._listeners[name] || (this._listeners[name] = [])).push(listener)
+                if (delayer.isDuring || persister.isDuring) {
+                    next = curr
+                    return
+                }
 
-            return () => {
-                const listeners = this._listeners[name].filter(fn => fn === listener)
-
-                if (listeners.length > 0) {
-                    this._listeners[name] = listeners
+                if (curr) {
+                    delayer.start().then(() => {
+                        setWaiting(true)
+                        persister.start().then(() => {
+                            if (next === false) {
+                                next = null
+                                setWaiting(false)
+                            }
+                        })
+                    })
                 } else {
-                    delete this._listeners[name]
+                    setWaiting(false)
                 }
             }
-        }, [delay, duration])
+
+            this._addListener(name, listener)
+            return () => this._removeListener(name, listener)
+        }, [delay, persist])
 
         return isWaiting
     }
