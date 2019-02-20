@@ -14,7 +14,7 @@ export default class Reserver {
 
     public reserve (
         name: string,
-        runner: () => void,
+        runner: () => any,
         { concurrency = Infinity }: Partial<ReserveOptions> = {}
     ) {
         this._reserves[name] = [runner, { concurrency }]
@@ -57,6 +57,6 @@ export default class Reserver {
             if (--this._pending[name] === 0) delete this._pending[name]
             this._runNextQueue(name)
         })
-        .then(defer.resolve, defer.reject)
+        .then(defer.resolve.bind(defer), defer.reject.bind(defer))
     }
 }

@@ -12,7 +12,7 @@ export default class Waiter {
         this.useWaiter = this.useWaiter.bind(this)
     }
 
-    public reserve (name: string, runner: () => void, opts: Partial<ReserveOptions> = {}) {
+    public reserve (name: string, runner: () => any, opts: Partial<ReserveOptions> = {}) {
         this._reserver.reserve(name, runner, opts)
     }
 

@@ -3,17 +3,33 @@
     "version": "0.0.1",
     "main": "index.js",
     "license": "MIT",
+    "scripts": {
+        "test": "ava"
+    },
     "peerDependencies": {
         "react": "^16.8.2"
-    },
-    "devDependencies": {
-        "@types/react": "^16.8.3",
-        "tslint": "^5.12.1",
-        "tslint-config-byungi": "^0.1.0",
-        "typescript": "^3.3.3"
     },
     "dependencies": {
         "p-state-defer": "^1.0.1",
         "rsup-duration": "^0.0.6"
+    },
+    "devDependencies": {
+        "@types/react": "^16.8.3",
+        "ava": "^1.2.1",
+        "react": "^16.8.2",
+        "react-testing-library": "^5.9.0",
+        "ts-node": "^8.0.2",
+        "tslint": "^5.12.1",
+        "tslint-config-byungi": "^0.1.0",
+        "typescript": "^3.3.3"
+    },
+    "ava": {
+        "compileEnhancements": false,
+        "extensions": [
+            "ts"
+        ],
+        "require": [
+            "ts-node/register"
+        ]
     }
 }
