@@ -25,7 +25,7 @@ export default class Reserver {
         if (count === opts.concurrency) {
             this._addQueue(name, defer)
         } else {
-            this._takeOrder(name, defer)
+            this._process(name, defer)
         }
 
         return defer.promise
@@ -36,23 +36,23 @@ export default class Reserver {
         this._queues[name].push(defer)
     }
 
-    private _runNextQueue (name: string) {
+    private _processNextQueue (name: string) {
         const queue = this._queues[name]
         if (!queue) return
 
         const defer = queue.shift()!
         if (queue.length === 0) delete this._queues[name]
 
-        this._takeOrder(name, defer)
+        this._process(name, defer)
     }
 
-    private _takeOrder (name: string, defer: Deferred<any>) {
+    private _process (name: string, defer: Deferred<any>) {
         this._pending[name] = (this._pending[name] || 0) + 1
         const [runner] = this._reserves[name]
 
         promiseFinally(Promise.resolve(runner()), () => {
             if (--this._pending[name] === 0) delete this._pending[name]
-            this._runNextQueue(name)
+            this._processNextQueue(name)
         })
         .then(defer.resolve.bind(defer), defer.reject.bind(defer))
     }
