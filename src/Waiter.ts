@@ -1,32 +1,49 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import duration from 'rsup-duration'
-import promiseFinally from './promise-finally'
-import Reserver, { ReserveOptions } from './Reserver'
+import Reserver, { ReservedWorker, ReserveOptions } from './Reserver'
+import { assertType, forIn, hasOwn, promiseFinally } from './util'
+
+export interface ReserveMap {
+    [name: string]: ReservedWorker | [ReservedWorker] | [ReservedWorker, Partial<ReserveOptions>]
+}
 
 export default class Waiter {
     private _reserver = new Reserver()
-    private _pending: Record<string, number> = Object.create(null)
-    private _listeners: Record<string, Array<() => void>> = Object.create(null)
+    private _pending: Record<string, number> = {}
+    private _listeners: Record<string, Array<() => void>> = {}
 
     constructor () {
         this.useWaiter = this.useWaiter.bind(this)
     }
 
-    public reserve (name: string, runner: () => any, opts: Partial<ReserveOptions> = {}) {
-        this._reserver.reserve(name, runner, opts)
+    public reserve (reserves: ReserveMap): void
+    public reserve (name: string, worker: ReservedWorker, opts?: Partial<ReserveOptions>): void
+    public reserve (name: string | ReserveMap, worker?: ReservedWorker, opts?: Partial<ReserveOptions>) {
+        if (typeof name === 'object') {
+            forIn(name, (val, k) => {
+                if (typeof val === 'function') val = [val]
+                this.reserve(k, val[0], val[1])
+            })
+            return
+        }
+
+        assertType(name, 'name', 'string')
+        assertType(worker, 'runner', 'function')
+
+        this._reserver.reserve(name, worker!, opts)
     }
 
-    public hasReserve (name: string) {
+    public isReserved (name: string) {
         return this._reserver.has(name)
     }
 
     public isWaiting (name: string) {
-        return name in this._pending
+        return hasOwn(this._pending, name)
     }
 
     public order <T = void> (name: string, promise?: Promise<T>) {
         if (!promise) {
-            if (!this.hasReserve(name)) throw new TypeError(`No reservations for "${name}"`)
+            if (!this.isReserved(name)) throw new TypeError(`No reservations for "${name}"`)
             promise = this._reserver.order(name)
         }
 
@@ -49,7 +66,7 @@ export default class Waiter {
     }
 
     private _addListener (name: string, listener: () => void) {
-        if (!(name in this._listeners)) this._listeners[name] = []
+        if (!hasOwn(this._listeners, name)) this._listeners[name] = []
         this._listeners[name].push(listener)
     }
 

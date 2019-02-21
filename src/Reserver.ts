@@ -1,23 +1,20 @@
 import Deferred from 'p-state-defer'
-import promiseFinally from './promise-finally'
+import { hasOwn, promiseFinally } from './util'
 
-export interface ReserveOptions {concurrency: number}
+export type ReservedWorker = () => any
+export interface ReserveOptions {concurrency?: number}
 
 export default class Reserver {
-    private _reserves: Record<string, [() => any, ReserveOptions]> = Object.create(null)
-    private _pending: Record<string, number> = Object.create(null)
-    private _queues: Record<string, Array<Deferred<any>>> = Object.create(null)
+    private _reserves: Record<string, [ReservedWorker, Required<ReserveOptions>]> = {}
+    private _pending: Record<string, number> = {}
+    private _queues: Record<string, Array<Deferred<any>>> = {}
 
     public has (name: string) {
-        return name in this._reserves
+        return hasOwn(this._reserves, name)
     }
 
-    public reserve (
-        name: string,
-        runner: () => any,
-        { concurrency = Infinity }: Partial<ReserveOptions> = {}
-    ) {
-        this._reserves[name] = [runner, { concurrency }]
+    public reserve (name: string, worker: ReservedWorker, { concurrency = Infinity }: ReserveOptions = {}) {
+        this._reserves[name] = [worker, { concurrency }]
     }
 
     public order<T> (name: string) {
@@ -35,7 +32,7 @@ export default class Reserver {
     }
 
     private _addQueue (name: string, defer: Deferred<any>) {
-        if (!(name in this._queues)) this._queues[name] = []
+        if (!hasOwn(this._queues, name)) this._queues[name] = []
         this._queues[name].push(defer)
     }
 
