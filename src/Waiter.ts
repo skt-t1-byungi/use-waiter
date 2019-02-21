@@ -4,7 +4,7 @@ import Reserver, { ReservedWorker, ReserveOptions } from './Reserver'
 import { assertType, forIn, hasOwn, promiseFinally } from './util'
 
 export interface ReserveMap {
-    [name: string]: ReservedWorker | [ReservedWorker] | [ReservedWorker, Partial<ReserveOptions>]
+    [name: string]: ReservedWorker | [ReservedWorker] | [ReservedWorker, ReserveOptions]
 }
 
 export default class Waiter {
@@ -17,8 +17,8 @@ export default class Waiter {
     }
 
     public reserve (reserves: ReserveMap): void
-    public reserve (name: string, worker: ReservedWorker, opts?: Partial<ReserveOptions>): void
-    public reserve (name: string | ReserveMap, worker?: ReservedWorker, opts?: Partial<ReserveOptions>) {
+    public reserve (name: string, worker: ReservedWorker, opts?: ReserveOptions): void
+    public reserve (name: string | ReserveMap, worker?: ReservedWorker, opts?: ReserveOptions) {
         if (typeof name === 'object') {
             forIn(name, (val, k) => {
                 if (typeof val === 'function') val = [val]

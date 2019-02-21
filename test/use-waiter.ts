@@ -4,20 +4,20 @@ import Waiter from '../src/Waiter'
 import './_browser'
 import { delay } from './_helpers'
 
-test('change state', async t => {
+test('subscribe by name', async t => {
     const w = new Waiter()
 
     let isWaiting
-    let callsTest = 0
-    let callsMock = 0
+    let calls1 = 0
+    let calls2 = 0
 
     testHook(() => {
         isWaiting = w.useWait('test')
-        callsTest++
+        calls1++
     })
     testHook(() => {
-        w.useWait('mock')
-        callsMock++
+        w.useWait('no')
+        calls2++
     })
 
     t.false(isWaiting)
@@ -28,6 +28,6 @@ test('change state', async t => {
     await promise
     t.false(isWaiting)
 
-    t.is(callsTest, 3)
-    t.is(callsMock, 1)
+    t.is(calls1, 3)
+    t.is(calls2, 1)
 })
