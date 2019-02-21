@@ -13,7 +13,7 @@ export default class Waiter {
     private _listeners: Record<string, Array<() => void>> = {}
 
     constructor () {
-        this.useWaiter = this.useWaiter.bind(this)
+        this.useWait = this.useWait.bind(this)
     }
 
     public reserve (reserves: ReserveMap): void
@@ -80,7 +80,7 @@ export default class Waiter {
         }
     }
 
-    public useWaiter (name: string, { delay= 0, persist = 0 } = {}) {
+    public useWait (name: string, { delay= 0, persist = 0 } = {}) {
         const [isWaiting, setWaiting] = useState(this.isWaiting(name))
         const prevRef = useRef(isWaiting)
 
