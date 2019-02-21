@@ -14,9 +14,13 @@
         "rsup-duration": "^0.0.6"
     },
     "devDependencies": {
+        "@types/jsdom": "^12.2.2",
         "@types/react": "^16.8.3",
         "ava": "^1.2.1",
+        "jsdom": "^13.2.0",
+        "mutationobserver-shim": "^0.3.3",
         "react": "^16.8.2",
+        "react-dom": "^16.8.2",
         "react-testing-library": "^5.9.0",
         "ts-node": "^8.0.2",
         "tslint": "^5.12.1",
