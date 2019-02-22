@@ -89,28 +89,28 @@ export default class Waiter {
         useLayoutEffect(() => {
             const delayer = duration(delay)
             const persister = duration(persist)
+
             let next: boolean | null = null
             let unmounted = false
 
             const listener = () => {
-                const curr = this.isWaiting(name)
+                const curr = next = this.isWaiting(name)
                 const prev = prevRef.current
 
-                if (curr === prev) return
-
-                if (delayer.isDuring || persister.isDuring) {
-                    next = curr
-                    return
-                }
+                if (curr === prev || delayer.isDuring || persister.isDuring) return
 
                 if (curr) {
                     delayer.start().then(() => {
                         if (unmounted) return
-                        setWaiting(true)
-                        persister.start().then(() => {
-                            if (unmounted) return
-                            if (next === false) setWaiting(false)
-                        })
+                        if (next !== false) {
+                            setWaiting(true)
+                            persister.start().then(() => {
+                                if (unmounted) return
+                                if (next === false) setWaiting(false)
+                                next = null
+                            })
+                        }
+                        next = null
                     })
                 } else {
                     setWaiting(false)
