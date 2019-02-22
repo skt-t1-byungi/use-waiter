@@ -94,10 +94,13 @@ export default class Waiter {
             let unmounted = false
 
             const listener = () => {
-                const curr = next = this.isWaiting(name)
+                const curr = this.isWaiting(name)
                 const prev = prevRef.current
 
-                if (curr === prev || delayer.isDuring || persister.isDuring) return
+                if (curr === prev || delayer.isDuring || persister.isDuring) {
+                    next = curr
+                    return
+                }
 
                 if (curr) {
                     delayer.start().then(() => {
