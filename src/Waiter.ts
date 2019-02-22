@@ -1,4 +1,3 @@
-import Deferred from 'p-state-defer'
 import { useLayoutEffect, useRef, useState } from 'react'
 import duration from 'rsup-duration'
 import Reserver, { ReservedWorker, ReserveOptions } from './Reserver'
@@ -127,16 +126,5 @@ export default class Waiter {
         }, [delay, persist])
 
         return isWaiting
-    }
-
-    public useSuspenseWait (name: string) {
-        const isWait = this.useWait(name)
-        const ref = useRef<Deferred<void>>()
-
-        if (isWait) {
-            throw ref.current = new Deferred()
-        } else {
-            if (ref.current) ref.current.resolve()
-        }
     }
 }
