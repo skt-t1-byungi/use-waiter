@@ -1,5 +1,7 @@
 # use-waiter 🤵
-A react hook for waiting
+> A react hook for waiting
+
+[![npm](https://flat.badgen.net/npm/v/use-waiter)](https://www.npmjs.com/package/use-waiter)
 
 ## Install
 ```sh

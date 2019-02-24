@@ -16,7 +16,7 @@
     "license": "MIT",
     "scripts": {
         "test": "ava",
-        "build": "tsc",
+        "build": "rm -rf dist && tsc",
         "prepublishOnly": "npm run test && npm run build"
     },
     "engines": {
