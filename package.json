@@ -19,6 +19,12 @@
         "build": "tsc",
         "prepublishOnly": "npm run test && npm run build"
     },
+    "engines": {
+        "node": ">= 6"
+    },
+    "files": [
+        "dist"
+    ],
     "peerDependencies": {
         "react": "^16.8.2"
     },
