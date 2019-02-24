@@ -69,7 +69,7 @@ waiter.reserve({
 
 #### options
 ##### `concurrency`
-Can optionally limit concurrency.
+Can optionally limit concurrency. The default is `Infinity`.
 
 
 ### waiter.isReserved(name)
