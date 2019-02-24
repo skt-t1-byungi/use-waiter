@@ -3,7 +3,7 @@ import duration from 'rsup-duration'
 import Reserver, { ReservedWorker, ReserveOptions } from './Reserver'
 import { assertType, forIn, hasOwn, promiseFinally } from './util'
 
-export interface ReserveMap {
+export interface Reservations {
     [name: string]: ReservedWorker | [ReservedWorker] | [ReservedWorker, ReserveOptions]
 }
 
@@ -16,9 +16,9 @@ export default class Waiter {
         this.useWait = this.useWait.bind(this)
     }
 
-    public reserve (reserves: ReserveMap): void
+    public reserve (reservations: Reservations): void
     public reserve (name: string, worker: ReservedWorker, opts?: ReserveOptions): void
-    public reserve (name: string | ReserveMap, worker?: ReservedWorker, opts?: ReserveOptions) {
+    public reserve (name: string | Reservations, worker?: ReservedWorker, opts?: ReserveOptions) {
         if (typeof name === 'object') {
             forIn(name, (val, k) => {
                 if (typeof val === 'function') val = [val]
@@ -42,7 +42,7 @@ export default class Waiter {
     }
 
     public order (name: string, payload?: object) {
-        if (!this.isReserved(name)) throw new TypeError(`No reservations for "${name}"`)
+        if (!this.isReserved(name)) throw new TypeError(`No reservation for "${name}"`)
         return this.promise(name, this._reserver.order(name, payload))
     }
 

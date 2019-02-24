@@ -5,21 +5,21 @@ export type ReservedWorker = (payload?: object) => any
 export interface ReserveOptions {concurrency?: number}
 
 export default class Reserver {
-    private _reserves: Record<string, [ReservedWorker, Required<ReserveOptions>]> = {}
+    private _reservations: Record<string, [ReservedWorker, Required<ReserveOptions>]> = {}
     private _pending: Record<string, number> = {}
     private _queues: Record<string, Array<[Deferred<any>, object | undefined]>> = {}
 
     public has (name: string) {
-        return hasOwn(this._reserves, name)
+        return hasOwn(this._reservations, name)
     }
 
     public reserve (name: string, worker: ReservedWorker, { concurrency = Infinity }: ReserveOptions = {}) {
-        this._reserves[name] = [worker, { concurrency }]
+        this._reservations[name] = [worker, { concurrency }]
     }
 
     public order<T> (name: string, payload?: object) {
         const defer = new Deferred<T>()
-        const [, opts] = this._reserves[name]
+        const [, opts] = this._reservations[name]
         const count = this._pending[name] || 0
 
         if (count === opts.concurrency) {
@@ -48,7 +48,7 @@ export default class Reserver {
 
     private _process (name: string, defer: Deferred<any>, payload?: object) {
         this._pending[name] = (this._pending[name] || 0) + 1
-        const [runner] = this._reserves[name]
+        const [runner] = this._reservations[name]
 
         promiseFinally(Promise.resolve(runner(payload)), () => {
             if (--this._pending[name] === 0) delete this._pending[name]

@@ -1,8 +1,8 @@
-import Waiter, { ReserveMap } from './Waiter'
+import Waiter, { Reservations } from './Waiter'
 
-export function createWaiter (reserves?: ReserveMap) {
+export function createWaiter (reservations?: Reservations) {
     const waiter = new Waiter()
-    if (reserves) waiter.reserve(reserves)
+    if (reservations) waiter.reserve(reservations)
     return waiter
 }
 
