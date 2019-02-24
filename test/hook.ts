@@ -22,7 +22,7 @@ test('subscribe', async t => {
 
     t.false(isWaiting)
     const promise = delay(100)
-    w.order('test', promise)
+    w.promise('test', promise)
     await delay(0)
     t.true(isWaiting)
     await promise
@@ -41,15 +41,15 @@ test('multiple orders', async t => {
         calls++
     })
 
-    w.order('test', delay(100))
+    w.promise('test', delay(100))
     await delay(50)
-    w.order('test', delay(100))
+    w.promise('test', delay(100))
     await delay(50)
-    w.order('test', delay(100))
+    w.promise('test', delay(100))
     await delay(50)
-    w.order('test', delay(100))
+    w.promise('test', delay(100))
     await delay(50)
-    await w.order('test', delay(100))
+    await w.promise('test', delay(100))
 
     t.is(calls, 3)
 })
@@ -61,7 +61,7 @@ test('delay', async t => {
     testHook(() => isWaiting = w.useWait('test', { delay: 100 }))
 
     const promise = delay(200)
-    w.order('test', promise)
+    w.promise('test', promise)
     await delay(50)
     t.false(isWaiting)
     await delay(80)
@@ -79,7 +79,7 @@ test('not start when order finishes earlier than the delay.', async t => {
         calls++
     })
 
-    await w.order('test', delay(50))
+    await w.promise('test', delay(50))
     t.is(calls, 1)
     await delay(70)
     t.is(calls, 1)
@@ -91,7 +91,7 @@ test('persist', async t => {
     let isWaiting = false
     testHook(() => isWaiting = w.useWait('test', { persist: 150 }))
 
-    await w.order('test', delay(100))
+    await w.promise('test', delay(100))
     t.true(isWaiting)
     await delay(100)
     t.false(isWaiting)
@@ -104,7 +104,7 @@ test('complex', async t => {
     testHook(() => isWaiting = w.useWait('test', { delay: 100, persist: 150 }))
 
     const promise = delay(130)
-    w.order('test', promise)
+    w.promise('test', promise)
     await delay(90)
     t.false(isWaiting)
     await delay(20)

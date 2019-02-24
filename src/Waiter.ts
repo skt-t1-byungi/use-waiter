@@ -41,12 +41,12 @@ export default class Waiter {
         return hasOwn(this._pending, name)
     }
 
-    public order <T = void> (name: string, promise?: Promise<T>) {
-        if (!promise) {
-            if (!this.isReserved(name)) throw new TypeError(`No reservations for "${name}"`)
-            promise = this._reserver.order(name)
-        }
+    public order (name: string, payload?: object) {
+        if (!this.isReserved(name)) throw new TypeError(`No reservations for "${name}"`)
+        return this.promise(name, this._reserver.order(name, payload))
+    }
 
+    public promise<T> (name: string, promise: Promise<T>) {
         if (this.isWaiting(name)) {
             this._pending[name]++
         } else {
@@ -97,10 +97,12 @@ export default class Waiter {
                 const curr = this.isWaiting(name)
                 const prev = prevRef.current
 
-                if (curr === prev || delayer.isDuring || persister.isDuring) {
+                if (delayer.isDuring || persister.isDuring) {
                     next = curr
                     return
                 }
+
+                if (curr === prev) return
 
                 if (curr) {
                     delayer.start().then(() => {

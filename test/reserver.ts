@@ -15,6 +15,14 @@ test('order by reserve', async t => {
     await r.order('test')
 })
 
+test('payload', async t => {
+    const r = new Reserver()
+    const data: any[] = []
+    r.reserve('test', p => data.push(p))
+    await Promise.all([r.order('test', { a: 1 }), r.order('test', { b: 2 })])
+    t.deepEqual(data, [{ a: 1 }, { b: 2 }])
+})
+
 test('concurrency', async t => {
     const mo = async (concurrency: number) => {
         const r = new Reserver()

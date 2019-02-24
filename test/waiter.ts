@@ -43,7 +43,7 @@ test('order by promise', async t => {
     const w = new Waiter()
     const promise = delay(100)
 
-    w.order('test', promise)
+    w.promise('test', promise)
     await delay(90)
     t.true(w.isWaiting('test'))
     await promise
