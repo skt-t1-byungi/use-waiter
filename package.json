@@ -31,10 +31,10 @@
         "react": "^16.8.2"
     },
     "dependencies": {
-        "@byungi/p-delay": "^0.1.2",
-        "rsup-duration": "^0.0.6"
+        "rsup-duration": "^0.0.9"
     },
     "devDependencies": {
+        "@byungi/p-delay": "^0.1.2",
         "@types/jsdom": "^12.2.3",
         "@types/react": "^16.8.7",
         "ava": "^1.3.1",
