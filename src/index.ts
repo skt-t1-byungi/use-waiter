@@ -1,16 +1,16 @@
-import { useLayoutEffect, useRef, useState } from 'react'
 import duration from 'rsup-duration'
+import { useLayoutEffect, useRef, useState } from 'react'
 
 export class Waiter {
-    private _pending: Record<string, number> = {}
-    private _listeners: Record<string, Array<() => void>> = {}
+    private _pending: Record<string, number> = Object.create(null)
+    private _listeners: Record<string, Array<() => void>> = Object.create(null)
 
     constructor () {
         this.useWait = this.useWait.bind(this)
     }
 
     public isWaiting (name: string) {
-        return hasOwn(this._pending, name)
+        return name in this._pending
     }
 
     public order<T> (name: string, promise: Promise<T>) {
@@ -40,7 +40,7 @@ export class Waiter {
     }
 
     private _addListener (name: string, listener: () => void) {
-        if (!hasOwn(this._listeners, name)) this._listeners[name] = []
+        if (!(name in this._listeners)) this._listeners[name] = []
         this._listeners[name].push(listener)
     }
 
@@ -111,13 +111,6 @@ export class Waiter {
     }
 }
 
-export function createWaiter () {
-    const waiter = new Waiter()
-    return waiter
-}
+export const createWaiter = () => new Waiter()
 
 export default createWaiter
-
-function hasOwn<T extends object> (obj: T, prop: string) {
-    return Object.prototype.hasOwnProperty.call(obj, prop)
-}

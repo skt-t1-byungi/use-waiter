@@ -1,8 +1,9 @@
 import test from 'ava'
 import { testHook } from 'react-hooks-testing-library'
 import createWaiter from '../src/'
-import './_browser'
 import { delay } from './_helpers'
+
+import './_browser'
 
 test('subscribe', async t => {
     const w = createWaiter()
