@@ -1,9 +1,9 @@
 import test from 'ava'
-import Waiter from '../src/Waiter'
+import createWaiter from '../src/'
 import { delay } from './_helpers'
 
 test('order', async t => {
-    const w = new Waiter()
+    const w = createWaiter()
     const promise = delay(100)
 
     w.order('test', promise)
@@ -14,7 +14,7 @@ test('order', async t => {
 })
 
 test('returns the input promise.', t => {
-    const w = new Waiter()
+    const w = createWaiter()
     const promise = delay(0)
     t.is(w.order('test', promise), promise)
 })

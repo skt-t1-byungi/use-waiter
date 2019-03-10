@@ -1,11 +1,11 @@
 import test from 'ava'
 import { testHook } from 'react-hooks-testing-library'
-import Waiter from '../src/Waiter'
+import createWaiter from '../src/'
 import './_browser'
 import { delay } from './_helpers'
 
 test('subscribe', async t => {
-    const w = new Waiter()
+    const w = createWaiter()
 
     let isWaiting = false
     let calls1 = 0
@@ -33,7 +33,7 @@ test('subscribe', async t => {
 })
 
 test('multiple orders', async t => {
-    const w = new Waiter()
+    const w = createWaiter()
 
     let calls = 0
     testHook(() => {
@@ -55,7 +55,7 @@ test('multiple orders', async t => {
 })
 
 test('delay', async t => {
-    const w = new Waiter()
+    const w = createWaiter()
 
     let isWaiting = false
     testHook(() => isWaiting = w.useWait('test', { delay: 100 }))
@@ -71,7 +71,7 @@ test('delay', async t => {
 })
 
 test('not start when order finishes earlier than the delay.', async t => {
-    const w = new Waiter()
+    const w = createWaiter()
 
     let calls = 0
     testHook(() => {
@@ -86,7 +86,7 @@ test('not start when order finishes earlier than the delay.', async t => {
 })
 
 test('persist', async t => {
-    const w = new Waiter()
+    const w = createWaiter()
 
     let isWaiting = false
     testHook(() => isWaiting = w.useWait('test', { persist: 150 }))
@@ -98,7 +98,7 @@ test('persist', async t => {
 })
 
 test('complex', async t => {
-    const w = new Waiter()
+    const w = createWaiter()
 
     let isWaiting = false
     testHook(() => isWaiting = w.useWait('test', { delay: 100, persist: 150 }))
