@@ -1,8 +1,7 @@
-import Waiter, { Reservations } from './Waiter'
+import Waiter from './Waiter'
 
-export function createWaiter (reservations?: Reservations) {
+export function createWaiter () {
     const waiter = new Waiter()
-    if (reservations) waiter.reserve(reservations)
     return waiter
 }
 
