@@ -1,7 +1,7 @@
 import test from 'ava'
 import { testHook } from 'react-hooks-testing-library'
 import createWaiter from '../src/'
-import { delay } from './_helpers'
+import delay from '@byungi/p-delay'
 
 import './_browser'
 

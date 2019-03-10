@@ -1,6 +1,6 @@
 import test from 'ava'
 import createWaiter from '../src/'
-import { delay } from './_helpers'
+import delay from '@byungi/p-delay'
 
 test('order', async t => {
     const w = createWaiter()

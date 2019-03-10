@@ -31,7 +31,7 @@
         "react": "^16.8.2"
     },
     "dependencies": {
-        "p-state-defer": "^1.0.1",
+        "@byungi/p-delay": "^0.1.2",
         "rsup-duration": "^0.0.6"
     },
     "devDependencies": {

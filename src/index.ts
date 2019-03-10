@@ -54,6 +54,7 @@ export class Waiter {
         }
     }
 
+    // tslint:disable-next-line: cognitive-complexity
     public useWait (name: string, { delay= 0, persist = 0 } = {}) {
         const [isWaiting, setWaiting] = useState(this.isWaiting(name))
         const prevRef = useRef(isWaiting)
@@ -79,13 +80,10 @@ export class Waiter {
                 if (curr === prev) return
 
                 if (curr) {
-                    // tslint:disable-next-line: no-floating-promises
                     delayer.start().then(() => {
                         if (unmounted) return
                         if (next !== false) {
                             setWaiting(true)
-
-                            // tslint:disable-next-line: no-floating-promises
                             persister.start().then(() => {
                                 if (unmounted) return
                                 if (next === false) setWaiting(false)
