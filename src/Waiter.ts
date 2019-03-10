@@ -14,7 +14,7 @@ export default class Waiter {
         return hasOwn(this._pending, name)
     }
 
-    public promise<T> (name: string, promise: Promise<T>) {
+    public order<T> (name: string, promise: Promise<T>) {
         if (this.isWaiting(name)) {
             this._pending[name]++
         } else {
@@ -22,11 +22,13 @@ export default class Waiter {
             this._emit(name)
         }
 
-        return promiseFinally(promise, () => {
+        promiseFinally(promise, () => {
             if (--this._pending[name] > 0) return
             delete this._pending[name]
             this._emit(name)
         })
+
+        return promise
     }
 
     private _emit (name: string) {
