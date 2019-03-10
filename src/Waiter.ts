@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import duration from 'rsup-duration'
-import { assertType, forIn, hasOwn, promiseFinally } from './util'
+import { hasOwn } from './util'
 
 export default class Waiter {
     private _pending: Record<string, number> = {}
@@ -22,11 +22,16 @@ export default class Waiter {
             this._emit(name)
         }
 
-        promiseFinally(promise, () => {
+        const onFinally = () => {
             if (--this._pending[name] > 0) return
             delete this._pending[name]
             this._emit(name)
-        })
+        }
+
+        promise.then(
+            val => (onFinally(), val),
+            err => (onFinally(), Promise.reject(err))
+        )
 
         return promise
     }
