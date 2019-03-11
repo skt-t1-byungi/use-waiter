@@ -13,7 +13,7 @@ export class Waiter {
         return name in this._pending
     }
 
-    public order<T> (name: string, promise: Promise<T>) {
+    public promise<T> (name: string, promise: Promise<T>) {
         if (this.isWaiting(name)) {
             this._pending[name]++
         } else {
