@@ -42,7 +42,7 @@ Create a waiter instance.
 Add a promise to monitor. Returns the promise received.
 
 ### waiter.isWaiting(name)
-Returns whether the order is in progress.
+Returns whether the task is in progress.
 
 ```js
 waiter.isWaiting('ASYNC_TASK') // => false
