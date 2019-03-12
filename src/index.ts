@@ -1,5 +1,5 @@
 import duration from 'rsup-duration'
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export class Waiter {
     private _pending: Record<string, number> = Object.create(null)
@@ -42,7 +42,7 @@ export class Waiter {
     }
 
     private _removeListener (name: string, listener: () => void) {
-        const listeners = this._listeners[name].filter(fn => fn === listener)
+        const listeners = this._listeners[name].filter(fn => fn !== listener)
 
         if (listeners.length > 0) {
             this._listeners[name] = listeners
@@ -56,9 +56,9 @@ export class Waiter {
         const [isWaiting, setWaiting] = useState(this.isWaiting(name))
         const prevRef = useRef(isWaiting)
 
-        useLayoutEffect(() => { prevRef.current = isWaiting }, [isWaiting])
+        useEffect(() => { prevRef.current = isWaiting }, [isWaiting])
 
-        useLayoutEffect(() => {
+        useEffect(() => {
             const delayer = duration(delay)
             const persister = duration(persist)
 
