@@ -1,7 +1,7 @@
 {
     "name": "use-waiter",
     "description": "A React Hook for waiting",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "main": "dist/index.js",
     "repository": "https://github.com/skt-t1-byungi/use-waiter",
     "author": "skt-t1-byungi <tiniwz@gmail.com>",
