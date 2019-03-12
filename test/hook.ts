@@ -1,5 +1,5 @@
 import test from 'ava'
-import { testHook } from 'react-hooks-testing-library'
+import { renderHook } from 'react-hooks-testing-library'
 import createWaiter from '../src/'
 import delay from '@byungi/p-delay'
 
@@ -12,11 +12,12 @@ test('subscribe', async t => {
     let calls1 = 0
     let calls2 = 0
 
-    testHook(() => {
+    renderHook(() => {
         isWaiting = w.useWait('test')
         calls1++
     })
-    testHook(() => {
+
+    renderHook(() => {
         w.useWait('no')
         calls2++
     })
@@ -37,7 +38,7 @@ test('multiple promises', async t => {
     const w = createWaiter()
 
     let calls = 0
-    testHook(() => {
+    renderHook(() => {
         w.useWait('test')
         calls++
     })
@@ -59,7 +60,7 @@ test('delay', async t => {
     const w = createWaiter()
 
     let isWaiting = false
-    testHook(() => isWaiting = w.useWait('test', { delay: 100 }))
+    renderHook(() => isWaiting = w.useWait('test', { delay: 100 }))
 
     const promise = delay(200)
     w.promise('test', promise)
@@ -75,7 +76,7 @@ test('not start when promise finishes earlier than the delay.', async t => {
     const w = createWaiter()
 
     let calls = 0
-    testHook(() => {
+    renderHook(() => {
         w.useWait('test', { delay: 100 })
         calls++
     })
@@ -90,7 +91,7 @@ test('persist', async t => {
     const w = createWaiter()
 
     let isWaiting = false
-    testHook(() => isWaiting = w.useWait('test', { persist: 150 }))
+    renderHook(() => isWaiting = w.useWait('test', { persist: 150 }))
 
     await w.promise('test', delay(100))
     t.true(isWaiting)
@@ -102,7 +103,7 @@ test('complex', async t => {
     const w = createWaiter()
 
     let isWaiting = false
-    testHook(() => isWaiting = w.useWait('test', { delay: 100, persist: 150 }))
+    renderHook(() => isWaiting = w.useWait('test', { delay: 100, persist: 150 }))
 
     const promise = delay(130)
     w.promise('test', promise)

@@ -18,3 +18,8 @@ test('returns the input promise.', t => {
     const promise = delay(0)
     t.is(w.promise('test', promise), promise)
 })
+
+test('handled errors should be silent.', async t => {
+    const w = createWaiter()
+    await t.notThrowsAsync(w.promise('test', Promise.reject('error')).catch(() => undefined))
+})

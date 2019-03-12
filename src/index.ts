@@ -27,10 +27,7 @@ export class Waiter {
             this._emit(name)
         }
 
-        promise.then(
-            val => (onFinally(), val),
-            err => (onFinally(), Promise.reject(err))
-        )
+        promise.then(onFinally, onFinally)
 
         return promise
     }
