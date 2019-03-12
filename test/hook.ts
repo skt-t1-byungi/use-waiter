@@ -5,6 +5,11 @@ import delay from '@byungi/p-delay'
 
 import './_browser'
 
+test.beforeEach(t => {
+    // tslint:disable-next-line: no-console
+    console.error = (message: string) => t.fail(message)
+})
+
 test('subscribe', async t => {
     const w = createWaiter()
 
@@ -58,18 +63,16 @@ test('multiple promises', async t => {
 
 test('delay', async t => {
     const w = createWaiter()
-
-    let isWaiting = false
-    renderHook(() => isWaiting = w.useWait('test', { delay: 100 }))
+    const { result } = renderHook(() => w.useWait('test', { delay: 100 }))
 
     const promise = delay(200)
     w.promise('test', promise)
     await delay(50)
-    t.false(isWaiting)
+    t.false(result.current)
     await delay(80)
-    t.true(isWaiting)
+    t.true(result.current)
     await promise
-    t.false(isWaiting)
+    t.false(result.current)
 })
 
 test('not start when promise finishes earlier than the delay.', async t => {
@@ -90,31 +93,39 @@ test('not start when promise finishes earlier than the delay.', async t => {
 test('persist', async t => {
     const w = createWaiter()
 
-    let isWaiting = false
-    renderHook(() => isWaiting = w.useWait('test', { persist: 150 }))
+    const { result } = renderHook(() => w.useWait('test', { persist: 150 }))
 
     await w.promise('test', delay(100))
-    t.true(isWaiting)
+    t.true(result.current)
     await delay(100)
-    t.false(isWaiting)
+    t.false(result.current)
 })
 
 test('complex', async t => {
     const w = createWaiter()
-
-    let isWaiting = false
-    renderHook(() => isWaiting = w.useWait('test', { delay: 100, persist: 150 }))
+    const { result } = renderHook(() => w.useWait('test', { delay: 100, persist: 150 }))
 
     const promise = delay(130)
     w.promise('test', promise)
     await delay(90)
-    t.false(isWaiting)
+    t.false(result.current)
     await delay(20)
-    t.true(isWaiting)
+    t.true(result.current)
     await promise
-    t.true(isWaiting)
+    t.true(result.current)
     await delay(100)
-    t.true(isWaiting)
+    t.true(result.current)
     await delay(50)
-    t.false(isWaiting)
+    t.false(result.current)
+})
+
+test('unmount', async t => {
+    const w = createWaiter()
+    const { result, unmount } = renderHook(() => w.useWait('test'))
+    w.promise('test', delay(100))
+    await delay(50)
+    t.true(result.current)
+    unmount()
+    await delay(70)
+    t.true(result.current)
 })
