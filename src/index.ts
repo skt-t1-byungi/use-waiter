@@ -14,6 +14,14 @@ export class Waiter {
     }
 
     public promise<T> (name: string, promise: Promise<T>) {
+        if (typeof name !== 'string') {
+            throw new TypeError(`[use-waiter] Expected "name" to be of type "string", but "${typeof name}".`)
+        }
+
+        if (!promise || typeof promise.then !== 'function') {
+            throw new TypeError(`[use-waiter] Expected "promise" to be of type "Promise", but "${typeof promise}".`)
+        }
+
         if (this.isWaiting(name)) {
             this._pending[name]++
         } else {
