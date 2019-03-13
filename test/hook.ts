@@ -13,13 +13,12 @@ test.beforeEach(t => {
 test('subscribe', async t => {
     const w = createWaiter()
 
-    let isWaiting = false
     let calls1 = 0
     let calls2 = 0
 
-    renderHook(() => {
-        isWaiting = w.useWait('test')
+    const { result } = renderHook(() => {
         calls1++
+        return w.useWait('test')
     })
 
     renderHook(() => {
@@ -27,13 +26,13 @@ test('subscribe', async t => {
         calls2++
     })
 
-    t.false(isWaiting)
+    t.false(result.current)
     const promise = delay(100)
     w.promise('test', promise)
     await delay(0)
-    t.true(isWaiting)
+    t.true(result.current)
     await promise
-    t.false(isWaiting)
+    t.false(result.current)
 
     t.is(calls1, 3)
     t.is(calls2, 1)
