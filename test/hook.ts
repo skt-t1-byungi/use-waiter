@@ -1,13 +1,18 @@
-import test from 'ava'
-import { renderHook } from 'react-hooks-testing-library'
+import { serial as test } from 'ava'
+import { renderHook, cleanup } from 'react-hooks-testing-library'
 import createWaiter from '../src/'
 import delay from '@byungi/p-delay'
 
 import './_browser'
 
-test.beforeEach(t => {
-    // tslint:disable-next-line: no-console
-    console.error = (message: string) => t.fail(message)
+// tslint:disable-next-line:no-console
+const consoleError = console.error
+
+test.afterEach(() => {
+    cleanup()
+
+    // tslint:disable-next-line:no-console
+    console.error = consoleError
 })
 
 test('subscribe', async t => {
@@ -119,6 +124,9 @@ test('complex', async t => {
 })
 
 test('unmount', async t => {
+    // tslint:disable-next-line:no-console
+    console.error = t.fail
+
     const w = createWaiter()
     const { result, unmount } = renderHook(() => w.useWait('test'))
     w.promise('test', delay(100))
