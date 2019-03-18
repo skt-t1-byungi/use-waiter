@@ -27,9 +27,9 @@ test('promise', async t => {
 
     w.promise('test', promise)
     await delay(90)
-    t.true(w.isWaiting('test'))
+    t.true(w.isPending('test'))
     await promise
-    t.false(w.isWaiting('test'))
+    t.false(w.isPending('test'))
 })
 
 test('returns the input promise.', t => {

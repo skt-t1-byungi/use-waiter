@@ -11,7 +11,7 @@ export class Waiter {
         this.useWait = this.useWait.bind(this)
     }
 
-    public isWaiting (order: string) {
+    public isPending (order: string) {
         return order in this._pending
     }
 
@@ -22,7 +22,7 @@ export class Waiter {
             throw new TypeError(`Expected "promise" to be thenable.`)
         }
 
-        if (this.isWaiting(order)) {
+        if (this.isPending(order)) {
             this._pending[order]++
         } else {
             this._pending[order] = 1
@@ -42,7 +42,7 @@ export class Waiter {
 
     public trigger (order: string) {
         assertType('order', 'string', order);
-        (this._listeners[order] || []).forEach(fn => fn(this.isWaiting(order)))
+        (this._listeners[order] || []).forEach(fn => fn(this.isPending(order)))
     }
 
     public on (order: string, listener: WaitListener) {
@@ -71,7 +71,7 @@ export class Waiter {
 
     // tslint:disable-next-line: cognitive-complexity
     public useWait (order: string, { delay= 0, persist = 0 } = {}) {
-        const [isWaiting, setWaiting] = useState(this.isWaiting(order))
+        const [isWaiting, setWaiting] = useState(this.isPending(order))
         const prevRef = useRef(isWaiting)
 
         useEffect(() => { prevRef.current = isWaiting }, [isWaiting])
