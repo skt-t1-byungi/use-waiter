@@ -60,6 +60,15 @@ export class Waiter {
         }
     }
 
+    public wait (name: string) {
+        return new Promise(resolve => {
+            const off = this.on(name, () => {
+                resolve()
+                off()
+            })
+        })
+    }
+
     // tslint:disable-next-line: cognitive-complexity
     public useWait (name: string, { delay= 0, persist = 0 } = {}) {
         const [isWaiting, setWaiting] = useState(this.isWaiting(name))

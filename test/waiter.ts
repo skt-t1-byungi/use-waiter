@@ -11,6 +11,16 @@ test('on, trigger, off', t => {
     w.trigger('test')
 })
 
+test('wait', async t => {
+    const w = createWaiter()
+    t.plan(1)
+    const p = w.wait('test').then(() => t.pass())
+    await delay(50)
+    w.trigger('test')
+    w.trigger('test')
+    await p
+})
+
 test('promise', async t => {
     const w = createWaiter()
     const promise = delay(100)
