@@ -1,9 +1,11 @@
 import duration from 'rsup-duration'
 import { useEffect, useRef, useState } from 'react'
 
+type WaitListener = (isWaiting: boolean) => void
+
 export class Waiter {
     private _pending: Record<string, number> = Object.create(null)
-    private _listeners: Record<string, Array<() => void>> = Object.create(null)
+    private _listeners: Record<string, WaitListener[]> = Object.create(null)
 
     constructor () {
         this.useWait = this.useWait.bind(this)
@@ -14,25 +16,23 @@ export class Waiter {
     }
 
     public promise<T> (name: string, promise: Promise<T>) {
-        if (typeof name !== 'string') {
-            throw new TypeError(`[use-waiter] Expected "name" to be of type "string", but "${typeof name}".`)
-        }
+        assertType('name', 'string', name)
 
         if (!promise || typeof promise.then !== 'function') {
-            throw new TypeError(`[use-waiter] Expected "promise" to be of type "Promise", but "${typeof promise}".`)
+            throw new TypeError(`Expected "promise" to be thenable.`)
         }
 
         if (this.isWaiting(name)) {
             this._pending[name]++
         } else {
             this._pending[name] = 1
-            this._emit(name)
+            this.trigger(name)
         }
 
         const onFinally = () => {
             if (--this._pending[name] > 0) return
             delete this._pending[name]
-            this._emit(name)
+            this.trigger(name)
         }
 
         promise.then(onFinally, onFinally)
@@ -40,22 +40,23 @@ export class Waiter {
         return promise
     }
 
-    private _emit (name: string) {
-        (this._listeners[name] || []).forEach(fn => fn())
+    public trigger (name: string) {
+        assertType('name', 'string', name);
+        (this._listeners[name] || []).forEach(fn => fn(this.isWaiting(name)))
     }
 
-    private _addListener (name: string, listener: () => void) {
+    public on (name: string, listener: WaitListener) {
+        assertType('name', 'string', name)
+        assertType('listener', 'function', listener)
+
         if (!(name in this._listeners)) this._listeners[name] = []
-        this._listeners[name].push(listener)
-    }
 
-    private _removeListener (name: string, listener: () => void) {
-        const listeners = this._listeners[name].filter(fn => fn !== listener)
+        const listeners = this._listeners[name]
+        listeners.push(listener)
 
-        if (listeners.length > 0) {
-            this._listeners[name] = listeners
-        } else {
-            delete this._listeners[name]
+        return () => {
+            listeners.splice(listeners.indexOf(listener), 1)
+            if (listeners.length === 0) delete this._listeners[name]
         }
     }
 
@@ -73,8 +74,7 @@ export class Waiter {
             let next: boolean | null = null
             let unmounted = false
 
-            const listener = () => {
-                const curr = this.isWaiting(name)
+            const listener = (curr: boolean) => {
                 const prev = prevRef.current
 
                 if (delayer.isDuring || persister.isDuring) {
@@ -102,11 +102,11 @@ export class Waiter {
                 }
             }
 
-            this._addListener(name, listener)
+            const off = this.on(name, listener)
 
             return () => {
                 unmounted = true
-                this._removeListener(name, listener)
+                off()
             }
         }, [delay, persist])
 
@@ -117,3 +117,8 @@ export class Waiter {
 export const createWaiter = () => new Waiter()
 
 export default createWaiter
+
+function assertType<T> (name: string, expected: string, val: T) {
+    const type = typeof val
+    if (type !== expected) throw new TypeError(`Expected "${name}" to be of type "${expected}", but "${type}".`)
+}

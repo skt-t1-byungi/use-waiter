@@ -41,7 +41,7 @@
         "browser-env": "^3.2.6",
         "react": "^16.8.4",
         "react-dom": "^16.8.4",
-        "react-hooks-testing-library": "^0.3.6",
+        "react-hooks-testing-library": "^0.3.7",
         "ts-node": "^8.0.3",
         "tslint": "^5.13.1",
         "tslint-config-byungi": "^0.1.1",
