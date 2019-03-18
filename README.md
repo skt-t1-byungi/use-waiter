@@ -58,8 +58,8 @@ waiter.isPending('ORDER') // => true
 Subscribe to order status.
 
 ```js
-waiter.on('DELAY', isDelaying => {
-    console.log(`isDelaying: ${isDelaying}`)
+waiter.on('DELAY', () => {
+    console.log(`isDelaying: ${waiter.isPending('DELAY')}`)
 })
 
 waiter.promise('DELAY', delay(500))
