@@ -128,11 +128,17 @@ test('unmount', async t => {
     console.error = t.fail
 
     const w = createWaiter()
-    const { result, unmount } = renderHook(() => w.useWait('test'))
+    const { result: r1, unmount: um1 } = renderHook(() => w.useWait('test'))
+    const { result: r2, unmount: um2 } = renderHook(() => w.useWait('test', { persist: 150 }))
+
     w.promise('test', delay(100))
     await delay(50)
-    t.true(result.current)
-    unmount()
-    await delay(70)
-    t.true(result.current)
+    t.true(r1.current)
+    t.true(r2.current)
+    um1()
+    await delay(80)
+    um2()
+    await delay(50)
+    t.true(r1.current)
+    t.true(r2.current)
 })
