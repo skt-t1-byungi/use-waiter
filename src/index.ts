@@ -11,28 +11,28 @@ export class Waiter {
         this.useWait = this.useWait.bind(this)
     }
 
-    public isWaiting (name: string) {
-        return name in this._pending
+    public isWaiting (order: string) {
+        return order in this._pending
     }
 
-    public promise<T> (name: string, promise: Promise<T>) {
-        assertType('name', 'string', name)
+    public promise<T> (order: string, promise: Promise<T>) {
+        assertType('order', 'string', order)
 
         if (!promise || typeof promise.then !== 'function') {
             throw new TypeError(`Expected "promise" to be thenable.`)
         }
 
-        if (this.isWaiting(name)) {
-            this._pending[name]++
+        if (this.isWaiting(order)) {
+            this._pending[order]++
         } else {
-            this._pending[name] = 1
-            this.trigger(name)
+            this._pending[order] = 1
+            this.trigger(order)
         }
 
         const onFinally = () => {
-            if (--this._pending[name] > 0) return
-            delete this._pending[name]
-            this.trigger(name)
+            if (--this._pending[order] > 0) return
+            delete this._pending[order]
+            this.trigger(order)
         }
 
         promise.then(onFinally, onFinally)
@@ -40,29 +40,29 @@ export class Waiter {
         return promise
     }
 
-    public trigger (name: string) {
-        assertType('name', 'string', name);
-        (this._listeners[name] || []).forEach(fn => fn(this.isWaiting(name)))
+    public trigger (order: string) {
+        assertType('order', 'string', order);
+        (this._listeners[order] || []).forEach(fn => fn(this.isWaiting(order)))
     }
 
-    public on (name: string, listener: WaitListener) {
-        assertType('name', 'string', name)
+    public on (order: string, listener: WaitListener) {
+        assertType('order', 'string', order)
         assertType('listener', 'function', listener)
 
-        if (!(name in this._listeners)) this._listeners[name] = []
+        if (!(order in this._listeners)) this._listeners[order] = []
 
-        const listeners = this._listeners[name]
+        const listeners = this._listeners[order]
         listeners.push(listener)
 
         return () => {
             listeners.splice(listeners.indexOf(listener), 1)
-            if (listeners.length === 0) delete this._listeners[name]
+            if (listeners.length === 0) delete this._listeners[order]
         }
     }
 
-    public wait (name: string) {
+    public wait (order: string) {
         return new Promise(resolve => {
-            const off = this.on(name, () => {
+            const off = this.on(order, () => {
                 resolve()
                 off()
             })
@@ -70,8 +70,8 @@ export class Waiter {
     }
 
     // tslint:disable-next-line: cognitive-complexity
-    public useWait (name: string, { delay= 0, persist = 0 } = {}) {
-        const [isWaiting, setWaiting] = useState(this.isWaiting(name))
+    public useWait (order: string, { delay= 0, persist = 0 } = {}) {
+        const [isWaiting, setWaiting] = useState(this.isWaiting(order))
         const prevRef = useRef(isWaiting)
 
         useEffect(() => { prevRef.current = isWaiting }, [isWaiting])
@@ -111,7 +111,7 @@ export class Waiter {
                 }
             }
 
-            const off = this.on(name, listener)
+            const off = this.on(order, listener)
 
             return () => {
                 unmounted = true
