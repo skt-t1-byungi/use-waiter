@@ -1,7 +1,7 @@
 import duration from 'rsup-duration'
 import { useEffect, useRef, useState } from 'react'
 
-type WaitListener = (isWaiting: boolean) => void
+type WaitListener = (data: any) => void
 
 export class Waiter {
     private _pending: Record<string, number> = Object.create(null)
@@ -40,9 +40,9 @@ export class Waiter {
         return promise
     }
 
-    public trigger (order: string) {
+    public trigger (order: string, data?: any) {
         assertType('order', 'string', order);
-        (this._listeners[order] || []).forEach(fn => fn(this.isPending(order)))
+        (this._listeners[order] || []).forEach(fn => fn(data))
     }
 
     public on (order: string, listener: WaitListener) {
@@ -83,7 +83,8 @@ export class Waiter {
             let next: boolean | null = null
             let unmounted = false
 
-            const listener = (curr: boolean) => {
+            const listener = () => {
+                const curr = this.isPending(order)
                 const prev = prevRef.current
 
                 if (delayer.isDuring || persister.isDuring) {
