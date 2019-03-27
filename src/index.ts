@@ -1,11 +1,9 @@
 import createDuration from 'rsup-duration'
 import { useLayoutEffect, useRef, useState } from 'react'
 
-type WaitListener = (data: any) => void
-
 export class Waiter {
     private _pending: Record<string, number> = Object.create(null)
-    private _listeners: Record<string, WaitListener[]> = Object.create(null)
+    private _listeners: Record<string, Array<() => void>> = Object.create(null)
 
     constructor () {
         this.useWait = this.useWait.bind(this)
@@ -15,10 +13,12 @@ export class Waiter {
         return order in this._pending
     }
 
-    public promise<T> (order: string, promise: Promise<T>) {
+    public promise<T> (order: string, promise: Promise<T> | (() => Promise<T>)) {
         if (typeof order !== 'string') {
             throw new TypeError(`Expected "order" to be of type "string", but "${typeof order}".`)
         }
+
+        if (typeof promise === 'function') promise = promise()
 
         if (!promise || typeof promise.then !== 'function') {
             throw new TypeError(`Expected "promise" to be thenable.`)
@@ -42,11 +42,11 @@ export class Waiter {
         return promise
     }
 
-    private _emit (order: string, data?: any) {
-        (this._listeners[order] || []).forEach(fn => fn(data))
+    private _emit (order: string) {
+        (this._listeners[order] || []).forEach(fn => fn())
     }
 
-    private _subscribe (order: string, listener: WaitListener) {
+    private _subscribe (order: string, listener: () => void) {
         if (!(order in this._listeners)) this._listeners[order] = []
 
         const listeners = this._listeners[order]

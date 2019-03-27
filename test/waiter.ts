@@ -13,6 +13,15 @@ test('promise', async t => {
     t.false(w.isPending('test'))
 })
 
+test('function type promise', async t => {
+    const w = createWaiter()
+    const promise = w.promise('test', () => delay(100))
+    await delay(90)
+    t.true(w.isPending('test'))
+    await promise
+    t.false(w.isPending('test'))
+})
+
 test('returns the input promise.', t => {
     const w = createWaiter()
     const promise = delay(0)
