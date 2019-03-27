@@ -1,5 +1,5 @@
 import createDuration from 'rsup-duration'
-import { useEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 
 type WaitListener = (data: any) => void
 
@@ -74,9 +74,9 @@ export class Waiter {
         const [isWaiting, setWaiting] = useState(this.isPending(order))
         const prevRef = useRef(isWaiting)
 
-        useEffect(() => { prevRef.current = isWaiting }, [isWaiting])
+        useLayoutEffect(() => { prevRef.current = isWaiting }, [isWaiting])
 
-        useEffect(() => {
+        useLayoutEffect(() => {
             const delayer = createDuration(delay)
             const persister = createDuration(duration)
 
