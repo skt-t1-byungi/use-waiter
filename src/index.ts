@@ -16,7 +16,9 @@ export class Waiter {
     }
 
     public promise<T> (order: string, promise: Promise<T>) {
-        assertType('order', 'string', order)
+        if (typeof order !== 'string') {
+            throw new TypeError(`Expected "order" to be of type "string", but "${typeof order}".`)
+        }
 
         if (!promise || typeof promise.then !== 'function') {
             throw new TypeError(`Expected "promise" to be thenable.`)
@@ -26,13 +28,13 @@ export class Waiter {
             this._pending[order]++
         } else {
             this._pending[order] = 1
-            this.trigger(order)
+            this._emit(order)
         }
 
         const onFinally = () => {
             if (--this._pending[order] > 0) return
             delete this._pending[order]
-            this.trigger(order)
+            this._emit(order)
         }
 
         promise.then(onFinally, onFinally)
@@ -40,15 +42,11 @@ export class Waiter {
         return promise
     }
 
-    public trigger (order: string, data?: any) {
-        assertType('order', 'string', order);
+    private _emit (order: string, data?: any) {
         (this._listeners[order] || []).forEach(fn => fn(data))
     }
 
-    public on (order: string, listener: WaitListener) {
-        assertType('order', 'string', order)
-        assertType('listener', 'function', listener)
-
+    private _subscribe (order: string, listener: WaitListener) {
         if (!(order in this._listeners)) this._listeners[order] = []
 
         const listeners = this._listeners[order]
@@ -58,15 +56,6 @@ export class Waiter {
             listeners.splice(listeners.indexOf(listener), 1)
             if (listeners.length === 0) delete this._listeners[order]
         }
-    }
-
-    public wait (order: string) {
-        return new Promise(resolve => {
-            const off = this.on(order, () => {
-                resolve()
-                off()
-            })
-        })
     }
 
     // tslint:disable-next-line: cognitive-complexity
@@ -109,7 +98,7 @@ export class Waiter {
                 }
             }
 
-            const off = this.on(order, listener)
+            const off = this._subscribe(order, listener)
 
             return () => {
                 unmounted = true
@@ -143,8 +132,3 @@ export class Waiter {
 export const createWaiter = () => new Waiter()
 
 export default createWaiter
-
-function assertType<T> (name: string, expected: string, val: T) {
-    const type = typeof val
-    if (type !== expected) throw new TypeError(`Expected "${name}" to be of type "${expected}", but "${type}".`)
-}
