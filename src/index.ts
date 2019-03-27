@@ -83,6 +83,23 @@ export class Waiter {
             let next: boolean | null = null
             let unmounted = false
 
+            const startWaiting = () => {
+                delayer.start().then(() => {
+                    if (unmounted) return
+                    if (next !== false) {
+                        setWaiting(true)
+                        persister.start().then(() => {
+                            if (unmounted) return
+                            if (next === false) setWaiting(false)
+                            next = null
+                        })
+                    }
+                    next = null
+                })
+            }
+
+            if (isWaiting) startWaiting()
+
             const listener = () => {
                 const curr = this.isPending(order)
                 const prev = prevRef.current
@@ -95,18 +112,7 @@ export class Waiter {
                 if (curr === prev) return
 
                 if (curr) {
-                    delayer.start().then(() => {
-                        if (unmounted) return
-                        if (next !== false) {
-                            setWaiting(true)
-                            persister.start().then(() => {
-                                if (unmounted) return
-                                if (next === false) setWaiting(false)
-                                next = null
-                            })
-                        }
-                        next = null
-                    })
+                    startWaiting()
                 } else {
                     setWaiting(false)
                 }

@@ -142,3 +142,12 @@ test('unmount', async t => {
     t.true(r1.current)
     t.true(r2.current)
 })
+
+test('At the time of initial rendering, persister should work immediately if waiting.', async t => {
+    const w = createWaiter()
+    w.promise('test', delay(50))
+    const { result } = renderHook(() => w.useWait('test', { delay: 30, persist: 100 }))
+    t.true(result.current)
+    await delay(50)
+    t.true(result.current)
+})
