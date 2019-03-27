@@ -16,7 +16,7 @@ const waiter = createWaiter()
 
 function App(){
     const { useWait } = waiter
-    const isSending = useWait('SEND_MESSAGE', {delay: 300, persist: 600})
+    const isSending = useWait('SEND_MESSAGE', {delay: 300, duration: 600})
 
     if(isSending){
         return <Loading />
@@ -119,8 +119,8 @@ A react hook that subscribes to changes in order status.
 ##### `delay`
 When the promise changes to pending, it responds as late as the delay time. If the promies are completed within the delay time, they will not respond. This prevents flashing that occurs when the pending time is short. The default is `0` milliseconds.
 
-##### `persist`
-If the promise ends before the persist time, it responds after the remaining persist time. This ensures loading motion time and prevents flashing. The default is `0` milliseconds.
+##### `duration`
+If the promise ends before the duration time, it responds after the remaining duration time. This ensures loading motion time and prevents flashing. The default is `0` milliseconds.
 
 ## License
 MIT

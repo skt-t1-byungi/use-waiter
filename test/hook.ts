@@ -94,10 +94,10 @@ test('not start when promise finishes earlier than the delay.', async t => {
     t.is(calls, 1)
 })
 
-test('persist', async t => {
+test('duration', async t => {
     const w = createWaiter()
 
-    const { result } = renderHook(() => w.useWait('test', { persist: 150 }))
+    const { result } = renderHook(() => w.useWait('test', { duration: 150 }))
 
     await w.promise('test', delay(100))
     t.true(result.current)
@@ -107,7 +107,7 @@ test('persist', async t => {
 
 test('complex', async t => {
     const w = createWaiter()
-    const { result } = renderHook(() => w.useWait('test', { delay: 100, persist: 150 }))
+    const { result } = renderHook(() => w.useWait('test', { delay: 100, duration: 150 }))
 
     const promise = delay(130)
     w.promise('test', promise)
@@ -129,7 +129,7 @@ test('unmount', async t => {
 
     const w = createWaiter()
     const { result: r1, unmount: um1 } = renderHook(() => w.useWait('test'))
-    const { result: r2, unmount: um2 } = renderHook(() => w.useWait('test', { persist: 150 }))
+    const { result: r2, unmount: um2 } = renderHook(() => w.useWait('test', { duration: 150 }))
 
     w.promise('test', delay(100))
     await delay(50)
@@ -143,10 +143,10 @@ test('unmount', async t => {
     t.true(r2.current)
 })
 
-test('At the time of initial rendering, persister should work immediately if waiting.', async t => {
+test('At the time of initial rendering, duration should work immediately if waiting.', async t => {
     const w = createWaiter()
     w.promise('test', delay(50))
-    const { result } = renderHook(() => w.useWait('test', { delay: 30, persist: 100 }))
+    const { result } = renderHook(() => w.useWait('test', { delay: 30, duration: 100 }))
     t.true(result.current)
     await delay(50)
     t.true(result.current)

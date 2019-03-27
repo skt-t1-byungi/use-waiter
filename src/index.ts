@@ -1,4 +1,4 @@
-import duration from 'rsup-duration'
+import createDuration from 'rsup-duration'
 import { useEffect, useRef, useState } from 'react'
 
 type WaitListener = (data: any) => void
@@ -70,15 +70,15 @@ export class Waiter {
     }
 
     // tslint:disable-next-line: cognitive-complexity
-    public useWait (order: string, { delay= 0, persist = 0 } = {}) {
+    public useWait (order: string, { delay= 0, duration = 0 } = {}) {
         const [isWaiting, setWaiting] = useState(this.isPending(order))
         const prevRef = useRef(isWaiting)
 
         useEffect(() => { prevRef.current = isWaiting }, [isWaiting])
 
         useEffect(() => {
-            const delayer = duration(delay)
-            const persister = duration(persist)
+            const delayer = createDuration(delay)
+            const persister = createDuration(duration)
 
             let next: boolean | null = null
             let unmounted = false
@@ -124,7 +124,7 @@ export class Waiter {
                 unmounted = true
                 off()
             }
-        }, [delay, persist])
+        }, [delay, duration])
 
         return isWaiting
     }
