@@ -77,34 +77,19 @@ export class Waiter {
         useLayoutEffect(() => { prevRef.current = isWaiting }, [isWaiting])
 
         useLayoutEffect(() => {
-            const delayer = createDuration(delay)
-            const persister = createDuration(duration)
+            const delayer = delay > 0 ? createDuration(delay) : null
+            const persister = duration > 0 ? createDuration(duration) : null
 
             let next: boolean | null = null
             let unmounted = false
 
-            const startWaiting = () => {
-                delayer.start().then(() => {
-                    if (unmounted) return
-                    if (next !== false) {
-                        setWaiting(true)
-                        persister.start().then(() => {
-                            if (unmounted) return
-                            if (next === false) setWaiting(false)
-                            next = null
-                        })
-                    }
-                    next = null
-                })
-            }
-
-            if (isWaiting) startWaiting()
+            if (isWaiting) startWaitingWithDelayer()
 
             const listener = () => {
                 const curr = this.isPending(order)
                 const prev = prevRef.current
 
-                if (delayer.isDuring || persister.isDuring) {
+                if ((delayer && delayer.isDuring) || (persister && persister.isDuring)) {
                     next = curr
                     return
                 }
@@ -112,7 +97,7 @@ export class Waiter {
                 if (curr === prev) return
 
                 if (curr) {
-                    startWaiting()
+                    startWaitingWithDelayer()
                 } else {
                     setWaiting(false)
                 }
@@ -123,6 +108,37 @@ export class Waiter {
             return () => {
                 unmounted = true
                 off()
+            }
+
+            function startWaitingWithDelayer () {
+                if (delayer) {
+                    delayer.start().then(startWaiting)
+                } else {
+                    startWaiting()
+                }
+            }
+
+            function endWaitingWithPersister () {
+                if (persister) {
+                    persister.start().then(endWaiting)
+                } else {
+                    endWaiting()
+                }
+            }
+
+            function startWaiting () {
+                if (unmounted) return
+                if (next !== false) {
+                    setWaiting(true)
+                    endWaitingWithPersister()
+                }
+                next = null
+            }
+
+            function endWaiting () {
+                if (unmounted) return
+                if (next === false) setWaiting(false)
+                next = null
             }
         }, [delay, duration])
 
