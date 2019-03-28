@@ -109,11 +109,7 @@ export class Waiter {
                 if (unmounted) return
                 if (next !== false) {
                     setWaiting(true)
-                    if (persister) {
-                        persister.start().then(endWaiting)
-                    } else {
-                        endWaiting()
-                    }
+                    if (persister) persister.start().then(endWaiting)
                 }
                 next = null
             }

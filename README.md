@@ -41,6 +41,20 @@ Create a waiter instance.
 ### waiter.promise(order, promise)
 Order with promise. Returns the promise passed as an argument.
 
+#### Using promise factory
+Below is an example of using promise factory function instead of promise.
+```js
+waiter.promise('TASK', async () => {
+    await taskAsync()
+})
+```
+The above code is shown below.
+```js
+waiter.promise('TASK', (async ()=> {
+    await taskAsync()
+})())
+```
+
 ### waiter.isPending(order)
 Returns whether the order promise is pending.
 
