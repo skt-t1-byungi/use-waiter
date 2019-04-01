@@ -73,7 +73,7 @@ export class Waiter {
             let unmounted = false
 
             if (isWaiting && persister) {
-                persister.start().then(endWaiting)
+                persister.start().then(afterDuration)
             }
 
             const listener = () => {
@@ -89,7 +89,8 @@ export class Waiter {
 
                 if (curr) {
                     if (delayer) {
-                        delayer.start().then(startWaiting)
+                        next = true
+                        delayer.start().then(afterDelay)
                     } else {
                         startWaiting()
                     }
@@ -98,23 +99,25 @@ export class Waiter {
                 }
             }
 
-            const off = this._subscribe(order, listener)
+            const unsubscribe = this._subscribe(order, listener)
 
             return () => {
                 unmounted = true
-                off()
+                unsubscribe()
             }
 
             function startWaiting () {
+                setWaiting(true)
+                if (persister) persister.start().then(afterDuration)
+            }
+
+            function afterDelay () {
                 if (unmounted) return
-                if (next !== false) {
-                    setWaiting(true)
-                    if (persister) persister.start().then(endWaiting)
-                }
+                if (next === true) startWaiting()
                 next = null
             }
 
-            function endWaiting () {
+            function afterDuration () {
                 if (unmounted) return
                 if (next === false) setWaiting(false)
                 next = null
