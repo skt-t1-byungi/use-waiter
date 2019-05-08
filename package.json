@@ -31,7 +31,7 @@
         "react": "^16.8.2"
     },
     "dependencies": {
-        "rsup-duration": "^0.0.10"
+        "rsup-duration": "^1.0.0"
     },
     "devDependencies": {
         "@byungi/p-delay": "0.1.2",
