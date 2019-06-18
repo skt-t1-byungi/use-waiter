@@ -1,6 +1,7 @@
 {
     "extends": "tslint-config-byungi",
     "rules": {
-        "no-floating-promises": false
+        "no-floating-promises": false,
+        "strict-type-predicates": false
     }
 }
