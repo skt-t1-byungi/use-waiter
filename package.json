@@ -42,6 +42,7 @@
         "react": "16.8.6",
         "react-dom": "16.8.6",
         "react-hooks-testing-library": "0.5.1",
+        "react-test-renderer": "^16.8.6",
         "ts-node": "8.3.0",
         "tslint": "5.17.0",
         "tslint-config-byungi": "0.1.1",

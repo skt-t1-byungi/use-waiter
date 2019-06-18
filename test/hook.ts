@@ -1,19 +1,14 @@
+// tslint:disable:no-console
+
 import { serial as test } from 'ava'
-import { renderHook, cleanup } from 'react-hooks-testing-library'
+import { renderHook } from 'react-hooks-testing-library'
 import createWaiter from '../src/'
 import delay from '@byungi/p-delay'
 
 import './_browser'
 
-// tslint:disable-next-line:no-console
 const consoleError = console.error
-
-test.afterEach(() => {
-    cleanup()
-
-    // tslint:disable-next-line:no-console
-    console.error = consoleError
-})
+test.afterEach(() => { console.error = consoleError })
 
 test('subscribe', async t => {
     const w = createWaiter()
@@ -124,7 +119,6 @@ test('complex', async t => {
 })
 
 test('unmount', async t => {
-    // tslint:disable-next-line:no-console
     console.error = t.fail
 
     const w = createWaiter()
