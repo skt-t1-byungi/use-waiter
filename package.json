@@ -1,0 +1,54 @@
+{
+    "name": "use-waiter",
+    "description": "A react hook to wait for an order.",
+    "version": "2.0.0-beta1",
+    "main": "dist/index.js",
+    "repository": "https://github.com/skt-t1-byungi/use-waiter",
+    "author": "skt-t1-byungi <tiniwz@gmail.com>",
+    "keywords": [
+        "react",
+        "hooks",
+        "wait",
+        "waiting",
+        "queue",
+        "load",
+        "loadable",
+        "loading"
+    ],
+    "license": "MIT",
+    "scripts": {
+        "test": "ava",
+        "build": "rm -rf dist && tsc",
+        "prepublishOnly": "npm run test && npm run build"
+    },
+    "engines": {
+        "node": ">= 6"
+    },
+    "files": [
+        "dist"
+    ],
+    "peerDependencies": {
+        "react": "^16.8.6"
+    },
+    "dependencies": {
+        "rsup-duration": "^1.0.0"
+    },
+    "devDependencies": {
+        "@types/react": "^16.8.21",
+        "ava": "^2.1.0",
+        "react": "^16.8.6",
+        "ts-node": "^8.3.0",
+        "tslint": "^5.17.0",
+        "tslint-config-byungi": "^0.1.1",
+        "typescript": "^3.5.2"
+    },
+    "ava": {
+        "compileEnhancements": false,
+        "extensions": [
+            "ts"
+        ],
+        "require": [
+            "ts-node/register"
+        ]
+    }
+}
