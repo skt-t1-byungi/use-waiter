@@ -1,12 +1,11 @@
 import { useRef, useState, useLayoutEffect, useMemo } from 'react'
 import createDuration from 'rsup-duration'
+import { FuncOrPromiseLike, EnsurePromiseLike, UseWaitOpts } from './types'
 
-type OrderFunction<R> = (() => R) | PromiseLike<R>
-type EnsurePromiseLike<T> = T extends PromiseLike<infer R> ? PromiseLike<R> : PromiseLike<T>
-type WaitFunction= <R>(order: OrderFunction<R>) => EnsurePromiseLike<R>
+export type WaitFunc= <R>(order: FuncOrPromiseLike<R>) => EnsurePromiseLike<R>
 
 // tslint:disable-next-line: cognitive-complexity
-export default function useWait ({ delay = 0, duration = 0 } = {}): [boolean, WaitFunction] {
+export default function useWait ({ delay = 0, duration = 0 }: UseWaitOpts = {}): [boolean, WaitFunc] {
     const [isWaiting, setWaiting] = useState(false)
     const effectorRef = useRef <null | ((b: boolean) => void)>(null)
 
@@ -16,19 +15,17 @@ export default function useWait ({ delay = 0, duration = 0 } = {}): [boolean, Wa
         function emit (isWaiting: boolean) {
             ((effectorRef && effectorRef.current) || setWaiting)(isWaiting)
         }
+
         function onFinally () {
             if (--count === 0) emit(false)
         }
 
-        return (order: OrderFunction<any>): PromiseLike<any> => {
+        return (promise: FuncOrPromiseLike<any>) => {
             if (++count === 1) emit(true)
-            if (typeof order === 'function') order = order()
-
-            return Promise.resolve(order).then(
-                    v => (onFinally(),v),
-                    err => (onFinally(), Promise.reject(err)))
+            if (typeof promise === 'function') promise = promise()
+            return Promise.resolve(promise).then(v => (onFinally(),v), err => (onFinally(), Promise.reject(err)))
         }
-    }, []) as WaitFunction
+    }, []) as WaitFunc
 
     useLayoutEffect(() => {
         const delayer = delay > 0 ? createDuration(delay) : null
@@ -54,6 +51,8 @@ export default function useWait ({ delay = 0, duration = 0 } = {}): [boolean, Wa
                 setWaiting(false)
             }
         }
+
+        if (isWaiting) effector(true)
 
         return () => {
             unmounted = true
