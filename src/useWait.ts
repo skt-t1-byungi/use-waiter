@@ -1,11 +1,12 @@
 import { useRef, useState, useLayoutEffect, useMemo } from 'react'
 import createDuration from 'rsup-duration'
-import { FuncOrPromiseLike, EnsurePromiseLike, UseWaitOpts } from './types'
+import { FnOrPromise, EnsurePromise, WaitOpts } from './types'
+import { pFinally } from './util'
 
-export type WaitFunc= <R>(order: FuncOrPromiseLike<R>) => EnsurePromiseLike<R>
+export type WaitFn= <R>(order: FnOrPromise<R>) => EnsurePromise<R>
 
 // tslint:disable-next-line: cognitive-complexity
-export default function useWait ({ delay = 0, duration = 0 }: UseWaitOpts = {}): [boolean, WaitFunc] {
+export default function useWait ({ delay = 0, duration = 0 }: WaitOpts = {}): [boolean, WaitFn] {
     const [isWaiting, setWaiting] = useState(false)
     const effectorRef = useRef <null | ((b: boolean) => void)>(null)
 
@@ -16,16 +17,12 @@ export default function useWait ({ delay = 0, duration = 0 }: UseWaitOpts = {}):
             ((effectorRef && effectorRef.current) || setWaiting)(isWaiting)
         }
 
-        function onFinally () {
-            if (--count === 0) emit(false)
-        }
-
-        return (promise: FuncOrPromiseLike<any>) => {
+        return (promise: FnOrPromise<any>) => {
             if (++count === 1) emit(true)
             if (typeof promise === 'function') promise = promise()
-            return Promise.resolve(promise).then(v => (onFinally(),v), err => (onFinally(), Promise.reject(err)))
+            return pFinally(promise, () => --count === 0 && emit(false))
         }
-    }, []) as WaitFunc
+    }, []) as WaitFn
 
     useLayoutEffect(() => {
         const delayer = delay > 0 ? createDuration(delay) : null

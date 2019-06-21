@@ -1,4 +1,10 @@
-export type AnyFunc = (...args: any) => any
-export type FuncOrPromiseLike<R> = (() => R) | PromiseLike<R>
-export type EnsurePromiseLike<T> = T extends PromiseLike<infer R> ? PromiseLike<R> : PromiseLike<T>
-export interface UseWaitOpts {delay?: number, duration?: number}
+export type AnyFn = (...args: any) => any
+export type FnOrPromise<R> = (() => R) | Promise<R>
+export type EnsurePromise<T> = T extends Promise<infer R> ? Promise<R> : Promise<T>
+
+export interface WaitOpts {delay?: number, duration?: number}
+
+type filterer<F extends AnyFn> = (...args: Parameters<F>) => boolean
+type filter<F extends AnyFn> = filterer<F> | [filterer<F>, any[]]
+
+export interface OrderWaitOpts<F extends AnyFn> extends WaitOpts { filter?: filter<F> }
