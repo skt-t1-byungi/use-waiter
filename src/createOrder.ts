@@ -34,7 +34,7 @@ export default function createOrder <Orderer extends AnyFn> (orderer: Orderer) {
             return () => {
                 listeners.splice(listeners.indexOf(listener), 1)
             }
-        }, [filter])
+        }, [filterer])
 
         return isWaiting
     }
