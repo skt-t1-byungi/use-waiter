@@ -1,12 +1,11 @@
 import { useRef, useState, useLayoutEffect, useMemo } from 'react'
 import createDuration from 'rsup-duration'
-import { Order, WaitOpts } from './types'
-import { pFinally } from './util'
 
-export type WaitFn= <R>(order: Order<R>) => Promise<R>
+type Order<R> = (() => R) | Promise<R>
+type WaitFn= <R>(order: Order<R>) => Promise<R>
 
 // tslint:disable-next-line: cognitive-complexity
-export default function useWait ({ delay = 0, duration = 0 }: WaitOpts = {}): [boolean, WaitFn] {
+export default function useWait ({ delay = 0, duration = 0 } = {}): [boolean, WaitFn] {
     const [isWaiting, setWaiting] = useState(false)
     const effectorRef = useRef <null | ((b: boolean) => void)>(null)
 
@@ -19,8 +18,17 @@ export default function useWait ({ delay = 0, duration = 0 }: WaitOpts = {}): [b
 
         return (order: Order<any>) => {
             if (++count === 1) emit(true)
+
             if (typeof order === 'function') order = order()
-            return pFinally(Promise.resolve(order), () => --count === 0 && emit(false))
+
+            const onFinally = () => {
+                if (--count === 0) emit(false)
+            }
+
+            return Promise.resolve(order).then(
+                v => (onFinally(), v),
+                err => (onFinally(), Promise.reject(err))
+            )
         }
     }, [])
 

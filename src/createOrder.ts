@@ -1,8 +1,11 @@
 import { useLayoutEffect, useCallback } from 'react'
 import useWait from './useWait'
-import { AnyFn, OrderWaitOpts } from './types'
 
+type AnyFn = (...args: any) => any
 type Listener<F extends AnyFn> = (p: Promise<ReturnType<F>>, args: Parameters<F>) => void
+type filterer<F extends AnyFn> = (...args: Parameters<F>) => boolean
+type filter<F extends AnyFn> = filterer<F> | [filterer<F>, any[]]
+interface WaitOpts<F extends AnyFn> { delay?: number, duration?: number, filter?: filter<F> }
 
 export default function createOrder <Orderer extends AnyFn> (orderer: Orderer) {
     const listeners: Array<Listener<Orderer>> = []
@@ -13,7 +16,7 @@ export default function createOrder <Orderer extends AnyFn> (orderer: Orderer) {
         return promise
     }
 
-    order.useWait = ({ delay= 0, duration= 0, filter= returnTrue }: OrderWaitOpts<Orderer> = {}) => {
+    order.useWait = ({ delay= 0, duration= 0, filter= returnTrue }: WaitOpts<Orderer> = {}) => {
         if (typeof filter === 'function') filter = [filter, []]
 
         const filterer = useCallback(filter[0], filter[1])
