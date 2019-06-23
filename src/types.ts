@@ -1,6 +1,5 @@
 export type AnyFn = (...args: any) => any
-export type FnOrPromise<R> = (() => R) | Promise<R>
-export type EnsurePromise<T> = T extends Promise<infer R> ? Promise<R> : Promise<T>
+export type Order<R> = (() => R) | Promise<R>
 
 export interface WaitOpts {delay?: number, duration?: number}
 
