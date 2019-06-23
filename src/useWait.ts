@@ -48,7 +48,7 @@ export default function useWait ({ delay = 0, duration = 0 } = {}): [boolean, Wa
             if (isWaiting) {
                 if (delayer) {
                     next = true
-                    delayer.start().then(afterDelay) // tslint:disable-line: no-floating-promises
+                    delayer.start().then(afterDelay)
                 } else {
                     startWaiting()
                 }
@@ -66,7 +66,7 @@ export default function useWait ({ delay = 0, duration = 0 } = {}): [boolean, Wa
 
         function startWaiting () {
             setWaiting(true)
-            if (persister) persister.start().then(afterDuration) // tslint:disable-line: no-floating-promises
+            if (persister) persister.start().then(afterDuration)
         }
 
         function afterDelay () {
