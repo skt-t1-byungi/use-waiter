@@ -1,10 +1,10 @@
-import Waiter from './Waiter'
+import createWaiter from './createWaiter'
 import { AnyFn, WaitOpts } from './types'
 
-const waiter = new Waiter()
+const waiter = createWaiter()
 let uid = 0
 
-export default function createSingleOrder <Orderer extends AnyFn> (orderer: Orderer) {
+export default function createSingle <Orderer extends AnyFn> (orderer: Orderer) {
     const id = String(uid++)
 
     const order = (...args: Parameters<Orderer>) => waiter.wait<ReturnType<Orderer>>(id, orderer(...args))
