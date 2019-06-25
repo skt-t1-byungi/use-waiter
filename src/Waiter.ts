@@ -3,59 +3,76 @@ import createDuration from 'rsup-duration'
 import { WaitOpts, Order, AnyFn } from './types'
 
 export default class Waiter {
-    private _count = 0
-    private _listeners: AnyFn[] = []
+    private _waitingMap: Record<string, number> = Object.create(null)
+    private _listenersMap: Record<string, AnyFn[]> = Object.create(null)
 
     constructor () {
         this.wait = this.wait.bind(this)
         this.useWait = this.useWait.bind(this)
     }
 
-    get isWaiting () {
-        return this._count > 0
+    public isWaiting (name: string) {
+        return name in this._waitingMap
     }
 
-    private _emit () {
-        this._listeners.forEach(fn => fn())
+    private _emit (name: string) {
+        (this._listenersMap[name] || []).forEach(fn => fn())
     }
 
-    public subscribe (listener: AnyFn) {
-        this._listeners.push(listener)
+    private _subscribe (name: string, listener: AnyFn) {
+        if (!(name in this._listenersMap)) this._listenersMap[name] = []
+
+        const listeners = this._listenersMap[name]
+        listeners.push(listener)
+
         return () => {
-            this._listeners.splice(this._listeners.indexOf(listener), 1)
+            listeners.splice(listeners.indexOf(listener), 1)
+            if (listeners.length === 0) delete this._listenersMap[name]
         }
     }
 
-    public wait <T> (order: Order<T>) {
+    public wait <T> (name: string, order: Order<T>) {
+        // tslint:disable-next-line: strict-type-predicates
+        if (typeof name !== 'string') {
+            throw new TypeError(`Expected "name" to be of type "string", but "${typeof name}".`)
+        }
+
         if (typeof order === 'function') order = Promise.resolve(order())
 
-        if (++this._count === 1) this._emit()
+        if (this.isWaiting(name)) {
+            this._waitingMap[name]++
+        } else {
+            this._waitingMap[name] = 1
+            this._emit(name)
+        }
 
         const onFinally = () => {
-            if (--this._count === 0) this._emit()
+            if (--this._waitingMap[name] > 0) return
+            delete this._waitingMap[name]
+            this._emit(name)
         }
 
         return Promise.resolve(order).then(v => (onFinally(), v), err => (onFinally(), Promise.reject(err)))
     }
 
     // tslint:disable-next-line: cognitive-complexity
-    public useWait ({ delay= 0, duration= 0 }: WaitOpts= {}) {
-        const [isWaiting, setWaiting] = useState(this.isWaiting)
+    public useWait (name: string, { delay= 0, duration= 0 }: WaitOpts= {}) {
+        const [isWaiting, setWaiting] = useState(this.isWaiting(name))
 
-        const unsubscribe = useMemo(() => {
+        const memoUnSubscriber = useMemo(() => {
             const delayer = delay > 0 ? createDuration(delay) : null
             const persister = duration > 0 ? createDuration(duration) : null
 
             let next: boolean | null = null
             let unmounted = false
 
-            const unsubscribe = this.subscribe(() => {
+            const unsubscribe = this._subscribe(name, () => {
                 if ((delayer && delayer.isDuring) || (persister && persister.isDuring)) {
-                    next = this.isWaiting
+                    next = this.isWaiting(name)
                     return
                 }
 
-                if (this.isWaiting) {
+                if (this.isWaiting(name)) {
                     if (delayer) {
                         next = true
                         delayer.start().then(afterDelay)
@@ -90,7 +107,7 @@ export default class Waiter {
             }
         }, [delay, duration])
 
-        useLayoutEffect(() => unsubscribe, [unsubscribe])
+        useLayoutEffect(() => memoUnSubscriber, [memoUnSubscriber])
 
         return isWaiting
     }
