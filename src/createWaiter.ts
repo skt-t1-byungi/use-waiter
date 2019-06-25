@@ -3,7 +3,7 @@ import createDuration from 'rsup-duration'
 import { WaitOpts, Order, AnyFn } from './types'
 
 export class Waiter {
-    private _countsMap: Record<string, number> = Object.create(null)
+    private _countMap: Record<string, number> = Object.create(null)
     private _listenersMap: Record<string, AnyFn[]> = Object.create(null)
 
     constructor () {
@@ -12,7 +12,7 @@ export class Waiter {
     }
 
     public isWaiting (name: string | number) {
-        return name in this._countsMap
+        return name in this._countMap
     }
 
     private _emit (name: string | number) {
@@ -33,15 +33,15 @@ export class Waiter {
 
     public wait <T> (name: string | number, order: Order<T>) {
         if (this.isWaiting(name)) {
-            this._countsMap[name]++
+            this._countMap[name]++
         } else {
-            this._countsMap[name] = 1
+            this._countMap[name] = 1
             this._emit(name)
         }
 
         const onFinally = () => {
-            if (--this._countsMap[name] > 0) return
-            delete this._countsMap[name]
+            if (--this._countMap[name] > 0) return
+            delete this._countMap[name]
             this._emit(name)
         }
 
