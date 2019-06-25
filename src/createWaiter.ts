@@ -11,15 +11,15 @@ export class Waiter {
         this.useWait = this.useWait.bind(this)
     }
 
-    public isWaiting (name: string) {
+    public isWaiting (name: string | number) {
         return name in this._waitingMap
     }
 
-    private _emit (name: string) {
+    private _emit (name: string | number) {
         (this._listenersMap[name] || []).forEach(fn => fn())
     }
 
-    private _subscribe (name: string, listener: AnyFn) {
+    private _subscribe (name: string | number, listener: AnyFn) {
         if (!(name in this._listenersMap)) this._listenersMap[name] = []
 
         const listeners = this._listenersMap[name]
@@ -31,12 +31,7 @@ export class Waiter {
         }
     }
 
-    public wait <T> (name: string, order: Order<T>) {
-        // tslint:disable-next-line: strict-type-predicates
-        if (typeof name !== 'string') {
-            throw new TypeError(`Expected "name" to be of type "string", but "${typeof name}".`)
-        }
-
+    public wait <T> (name: string | number, order: Order<T>) {
         if (this.isWaiting(name)) {
             this._waitingMap[name]++
         } else {
@@ -55,7 +50,7 @@ export class Waiter {
     }
 
     // tslint:disable-next-line: cognitive-complexity
-    public useWait (name: string, { delay= 0, duration= 0 }: WaitOpts= {}) {
+    public useWait (name: string | number, { delay= 0, duration= 0 }: WaitOpts= {}) {
         const [isWaiting, setWaiting] = useState(this.isWaiting(name))
 
         const memoUnSubscriber = useMemo(() => {

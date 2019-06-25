@@ -7,7 +7,7 @@ let uid = 0
 
 export default function useWait (opts: WaitOpts = {}): [boolean, WaitFn] {
     const [id, wait] = useMemo(() => {
-        const id = String(uid++)
+        const id = uid++
         const wait = <T>(order: Order<T>) => waiter.wait(id, order)
         return [id, wait]
     }, [])

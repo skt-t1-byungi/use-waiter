@@ -5,7 +5,7 @@ const waiter = createWaiter()
 let uid = 0
 
 export default function createSingle <Orderer extends AnyFn> (orderer: Orderer) {
-    const id = String(uid++)
+    const id = uid++
 
     const order = (...args: Parameters<Orderer>) => waiter.wait<ReturnType<Orderer>>(id, orderer(...args))
     order.useWait = (opts?: WaitOpts) => waiter.useWait(id, opts)
