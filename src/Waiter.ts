@@ -37,8 +37,6 @@ export default class Waiter {
             throw new TypeError(`Expected "name" to be of type "string", but "${typeof name}".`)
         }
 
-        if (typeof order === 'function') order = Promise.resolve(order())
-
         if (this.isWaiting(name)) {
             this._waitingMap[name]++
         } else {
@@ -52,7 +50,8 @@ export default class Waiter {
             this._emit(name)
         }
 
-        return Promise.resolve(order).then(v => (onFinally(), v), err => (onFinally(), Promise.reject(err)))
+        return Promise.resolve(typeof order === 'function' ? order() : order)
+            .then(v => (onFinally(), v), err => (onFinally(), Promise.reject(err)))
     }
 
     // tslint:disable-next-line: cognitive-complexity

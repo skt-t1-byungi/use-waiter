@@ -1,10 +1,10 @@
 import { serial as test } from 'ava'
 import { renderHook } from '@testing-library/react-hooks'
-import { useWait } from '../src'
+import { useLocalWait } from '../src'
 import delay from '@byungi/p-delay'
 
 test('change isWaiting', async t => {
-    const { result } = renderHook(() => useWait())
+    const { result } = renderHook(() => useLocalWait())
     const [isWaiting, wait] = result.current
 
     t.false(isWaiting)
@@ -16,7 +16,7 @@ test('change isWaiting', async t => {
 
 test('on overlapped', async t => {
     let calls = 0
-    const { result: { current: [,wait] } } = renderHook(() => (calls++,useWait()))
+    const { result: { current: [,wait] } } = renderHook(() => (calls++,useLocalWait()))
 
     for (let i = 0; i < 4; i++) {
         wait(delay(100))
@@ -29,7 +29,7 @@ test('on overlapped', async t => {
 })
 
 test('delay option', async t => {
-    const { result } = renderHook(() => useWait({ delay: 100 }))
+    const { result } = renderHook(() => useLocalWait({ delay: 100 }))
     const [isWaiting, wait] = result.current
 
     // short case
@@ -51,7 +51,7 @@ test('delay option', async t => {
 })
 
 test('duration option', async t => {
-    const { result } = renderHook(() => useWait({ duration: 100 }))
+    const { result } = renderHook(() => useLocalWait({ duration: 100 }))
     const [, wait] = result.current
 
     wait(delay(50))
@@ -65,7 +65,7 @@ test('duration option', async t => {
 })
 
 test('complex option', async t => {
-    const { result } = renderHook(() => useWait({ delay: 50, duration: 100 }))
+    const { result } = renderHook(() => useLocalWait({ delay: 50, duration: 100 }))
     const [, wait] = result.current
 
     wait(delay(80))

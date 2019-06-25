@@ -1,2 +1,2 @@
-export { default as useWait } from './useWait'
-export { default as createOrder } from './createOrder'
+export { default as useLocalWait } from './useLocalWait'
+export { default as createSingle } from './createSingle'
