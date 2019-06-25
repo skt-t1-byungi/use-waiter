@@ -36,38 +36,3 @@ test('different options', async t => {
     t.false(r1.current)
     t.false(r2.current)
 })
-
-test('filter option', async t => {
-    const order = createOrder((f: boolean, ms: number) => delay(ms))
-    const { result } = renderHook(() => order.useWait({ filter: f => f }))
-
-    order(false, 80)
-    t.false(result.current)
-    order(true, 50)
-    t.true(result.current)
-    await delay(50)
-    t.false(result.current)
-    await delay(30)
-    t.false(result.current)
-})
-
-test('change filter by deps', async t => {
-    const order = createOrder((f: boolean, ms: number) => delay(ms))
-    const { result, rerender } = renderHook(not => order.useWait(
-        { filter: [f => not ? !f : f, [not]] }),
-        { initialProps: false }
-    )
-
-    order(false, 80)
-    t.false(result.current)
-    order(true, 50)
-    t.true(result.current)
-    await delay(50)
-    t.false(result.current)
-    rerender(true)
-    t.false(result.current)
-    order(false, 50)
-    t.true(result.current)
-    await delay(50)
-    t.false(result.current)
-})
