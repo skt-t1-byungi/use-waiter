@@ -5,7 +5,7 @@ import { WaitFn, WaitOpts, Order } from './types'
 const waiter = createWaiter()
 let uid = 0
 
-export default function useWait (opts: WaitOpts = {}): [boolean, WaitFn] {
+export default function useLocalWait (opts: WaitOpts = {}): [boolean, WaitFn] {
     const [id, wait] = useMemo(() => {
         const id = uid++
         const wait = <T>(order: Order<T>) => waiter.wait(id, order)
