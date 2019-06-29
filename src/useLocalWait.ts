@@ -1,18 +1,11 @@
+import SingleWaiter from './SingleWaiter'
 import { useMemo } from 'react'
-import Waiter from './Waiter'
-import { WaitFn, WaitOpts, Order } from './types'
-
-const waiter = new Waiter()
-let uid = 0
+import { WaitFn, WaitOpts } from './types'
 
 export default function useLocalWait (opts: WaitOpts = {}): [boolean, WaitFn] {
-    const [id, wait] = useMemo(() => {
-        const id = uid++
-        const wait = <T>(order: Order<T>) => waiter.wait(id, order)
-        return [id, wait]
-    }, [])
+    const waiter = useMemo(() => new SingleWaiter(), [])
 
-    const isWaiting = waiter.useWait(id, opts)
+    const isWaiting = waiter.useWait(opts)
 
-    return [isWaiting, wait]
+    return [isWaiting, waiter.wait]
 }

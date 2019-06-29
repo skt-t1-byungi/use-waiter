@@ -1,10 +1,10 @@
-import { useMemo, useState, useLayoutEffect } from 'react'
-import createDuration from 'rsup-duration'
-import { WaitOpts, Order, AnyFn } from './types'
+import SingleWaiter from './SingleWaiter'
+import { useLayoutEffect } from 'react'
+import { WaitOpts, Order } from './types'
+import orderFinally from './orderFinally'
 
 export default class Waiter {
-    private _countMap: Record<string, number> = Object.create(null)
-    private _listenersMap: Record<string, AnyFn[]> = Object.create(null)
+    private _waiters: Record<string, SingleWaiter> = Object.create(null)
 
     constructor () {
         this.wait = this.wait.bind(this)
@@ -12,97 +12,30 @@ export default class Waiter {
     }
 
     public isWaiting (name: string | number) {
-        return name in this._countMap
+        return Boolean(this._waiters[name] && this._waiters[name].isWaiting)
     }
 
-    private _emit (name: string | number) {
-        (this._listenersMap[name] || []).forEach(fn => fn())
-    }
-
-    private _subscribe (name: string | number, listener: AnyFn) {
-        if (!(name in this._listenersMap)) this._listenersMap[name] = []
-
-        const listeners = this._listenersMap[name]
-        listeners.push(listener)
-
-        return () => {
-            listeners.splice(listeners.indexOf(listener), 1)
-            if (listeners.length === 0) delete this._listenersMap[name]
-        }
+    private _getWaiter (name: string | number) {
+        return this._waiters[name] || (this._waiters[name] = new SingleWaiter())
     }
 
     public wait <T> (name: string | number, order: Order<T>) {
-        if (this.isWaiting(name)) {
-            this._countMap[name]++
-        } else {
-            this._countMap[name] = 1
-            this._emit(name)
-        }
+        const waiter = this._getWaiter(name)
 
-        const onFinally = () => {
-            if (--this._countMap[name] > 0) return
-            delete this._countMap[name]
-            this._emit(name)
-        }
+        orderFinally(order, () => {
+            if (!waiter.isInUse) delete this._waiters[name]
+        })
 
-        return Promise.resolve(typeof order === 'function' ? order() : order)
-            .then(v => (onFinally(), v), err => (onFinally(), Promise.reject(err)))
+        return waiter.wait(order)
     }
 
-    // tslint:disable-next-line: cognitive-complexity
-    public useWait (name: string | number, { delay= 0, duration= 0 }: WaitOpts= {}) {
-        const [isWaiting, setWaiting] = useState(this.isWaiting(name))
+    public useWait (name: string | number, opts: WaitOpts= {}) {
+        const waiter = this._getWaiter(name)
 
-        const memoUnSubscriber = useMemo(() => {
-            const delayer = delay > 0 ? createDuration(delay) : null
-            const persister = duration > 0 ? createDuration(duration) : null
+        useLayoutEffect(() => () => {
+            if (!waiter.isInUse) delete this._waiters[name]
+        }, [])
 
-            let next: boolean | null = null
-            let unmounted = false
-
-            const unsubscribe = this._subscribe(name, () => {
-                if ((delayer && delayer.isDuring) || (persister && persister.isDuring)) {
-                    next = this.isWaiting(name)
-                    return
-                }
-
-                if (this.isWaiting(name)) {
-                    if (delayer) {
-                        next = true
-                        delayer.start().then(afterDelay)
-                    } else {
-                        startWaiting()
-                    }
-                } else {
-                    setWaiting(false)
-                }
-            })
-
-            return () => {
-                unmounted = true
-                unsubscribe()
-            }
-
-            function startWaiting () {
-                setWaiting(true)
-                if (persister) persister.start().then(afterDuration)
-            }
-
-            function afterDelay () {
-                if (unmounted) return
-                if (next === true) startWaiting()
-                next = null
-            }
-
-            function afterDuration () {
-                if (unmounted) return
-                if (next === false) setWaiting(false)
-                next = null
-            }
-        }, [delay, duration])
-
-        useLayoutEffect(() => memoUnSubscriber, [memoUnSubscriber])
-
-        return isWaiting
+        return waiter.useWait(opts)
     }
 }
