@@ -13,7 +13,7 @@ export default class SingleWaiter {
     }
 
     get isInUse () {
-        return this.isWaiting && this._listeners.length > 0
+        return this.isWaiting || this._listeners.length > 0
     }
 
     get isWaiting () {

@@ -22,20 +22,19 @@ export default class Waiter {
     public wait <T> (name: string | number, order: Order<T>) {
         const waiter = this._getWaiter(name)
 
-        orderFinally(order, () => {
+        return orderFinally(waiter.wait(order), () => {
             if (!waiter.isInUse) delete this._waiters[name]
         })
-
-        return waiter.wait(order)
     }
 
     public useWait (name: string | number, opts: WaitOpts= {}) {
         const waiter = this._getWaiter(name)
+        const isWaiting = waiter.useWait(opts)
 
         useLayoutEffect(() => () => {
             if (!waiter.isInUse) delete this._waiters[name]
         }, [])
 
-        return waiter.useWait(opts)
+        return isWaiting
     }
 }

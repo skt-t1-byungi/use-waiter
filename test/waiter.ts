@@ -1,29 +1,36 @@
 import { serial as test } from 'ava'
 import { Waiter } from '../src/'
+import { renderHook } from '@testing-library/react-hooks'
 import delay from '@byungi/p-delay'
 
-test('wait', async t => {
+test('isWaiting', async t => {
     const w = new Waiter()
-    const p = delay(50)
 
-    w.wait('test', p)
-    await delay(40)
-    t.true(w.isWaiting('test'))
-    await p
-    t.false(w.isWaiting('test'))
+    t.false(w.isWaiting('a'))
+    t.false(w.isWaiting('b'))
+    const p1 = w.wait('a', delay(50))
+    const p2 = w.wait('b', delay(80))
+    t.true(w.isWaiting('a'))
+    t.true(w.isWaiting('b'))
+    await p1
+    t.false(w.isWaiting('a'))
+    t.true(w.isWaiting('b'))
+    await p2
+    t.false(w.isWaiting('b'))
 })
 
-test('function type order', async t => {
+test('clear not used', async t => {
     const w = new Waiter()
-    const p = w.wait('test', () => delay(50))
-
-    await delay(40)
-    t.true(w.isWaiting('test'))
+    const p = w.wait('a', delay(0))
+    t.truthy((w as any)._waiters.a)
     await p
-    t.false(w.isWaiting('test'))
-})
+    t.falsy((w as any)._waiters.a)
 
-test('handled errors should be silent.', async t => {
-    const w = new Waiter()
-    await t.notThrowsAsync(w.wait('test', Promise.reject('error')).catch(() => undefined))
+    const { unmount: um1 } = renderHook(() => w.useWait('a'))
+    const { unmount: um2 } = renderHook(() => w.useWait('a'))
+    t.truthy((w as any)._waiters.a)
+    um1()
+    t.truthy((w as any)._waiters.a)
+    um2()
+    t.falsy((w as any)._waiters.a)
 })
