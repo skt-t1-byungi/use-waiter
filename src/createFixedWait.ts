@@ -4,7 +4,7 @@ import { AnyFn, WaitOpts } from './types'
 const waiter = new Waiter()
 let uid = 0
 
-export default function createSingleWait <Orderer extends AnyFn> (orderer: Orderer) {
+export default function createFixedWait <Orderer extends AnyFn> (orderer: Orderer) {
     const id = uid++
 
     const order = (...args: Parameters<Orderer>) => waiter.wait<ReturnType<Orderer>>(id, orderer(...args))
