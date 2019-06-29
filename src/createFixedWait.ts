@@ -1,5 +1,5 @@
 import SingleWaiter from './SingleWaiter'
-import { AnyFn, WaitOpts } from './types'
+import { AnyFn } from './types'
 
 export default function createFixedWait <Orderer extends AnyFn> (orderer: Orderer) {
     const waiter = new SingleWaiter()
