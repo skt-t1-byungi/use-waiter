@@ -5,7 +5,7 @@ export default function createFixedWait <Orderer extends AnyFn> (orderer: Ordere
     const waiter = new SingleWaiter()
 
     const order = (...args: Parameters<Orderer>) => waiter.wait<ReturnType<Orderer>>(orderer(...args))
-    order.useWait = (opts?: WaitOpts) => waiter.useWait(opts)
+    order.useWait = waiter.useWait
 
     return order
 }
