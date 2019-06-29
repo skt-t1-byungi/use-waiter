@@ -3,6 +3,7 @@
     "description": "A react hook to wait for an order.",
     "version": "2.1.0",
     "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "repository": "https://github.com/skt-t1-byungi/use-waiter",
     "author": "skt-t1-byungi <tiniwz@gmail.com>",
     "keywords": [
