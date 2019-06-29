@@ -1,6 +1,6 @@
 {
     "name": "use-waiter",
-    "description": "A react hook to wait for an order.",
+    "description": "A react hook to wait for an asynchronous order.",
     "version": "2.1.0",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
