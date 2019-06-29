@@ -1,10 +1,10 @@
 import { serial as test } from 'ava'
 import { renderHook } from '@testing-library/react-hooks'
-import { createSingle } from '../src'
+import { createSingleWait } from '../src'
 import delay from '@byungi/p-delay'
 
 test('share a order state', async t => {
-    const order = createSingle(delay)
+    const order = createSingleWait(delay)
     const { result: r1 } = renderHook(() => order.useWait())
     const { result: r2 } = renderHook(() => order.useWait())
 
@@ -19,7 +19,7 @@ test('share a order state', async t => {
 })
 
 test('different options', async t => {
-    const order = createSingle(delay)
+    const order = createSingleWait(delay)
     const { result: r1 } = renderHook(() => order.useWait({ duration: 80 }))
     const { result: r2 } = renderHook(() => order.useWait({ delay: 30 }))
 

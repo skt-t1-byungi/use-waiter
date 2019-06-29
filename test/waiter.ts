@@ -1,9 +1,9 @@
 import { serial as test } from 'ava'
-import { createWaiter } from '../src/'
+import { Waiter } from '../src/'
 import delay from '@byungi/p-delay'
 
 test('wait', async t => {
-    const w = createWaiter()
+    const w = new Waiter()
     const p = delay(50)
 
     w.wait('test', p)
@@ -14,7 +14,7 @@ test('wait', async t => {
 })
 
 test('function type order', async t => {
-    const w = createWaiter()
+    const w = new Waiter()
     const p = w.wait('test', () => delay(50))
 
     await delay(40)
@@ -24,6 +24,6 @@ test('function type order', async t => {
 })
 
 test('handled errors should be silent.', async t => {
-    const w = createWaiter()
+    const w = new Waiter()
     await t.notThrowsAsync(w.wait('test', Promise.reject('error')).catch(() => undefined))
 })

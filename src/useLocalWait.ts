@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
-import createWaiter from './createWaiter'
+import Waiter from './Waiter'
 import { WaitFn, WaitOpts, Order } from './types'
 
-const waiter = createWaiter()
+const waiter = new Waiter()
 let uid = 0
 
 export default function useLocalWait (opts: WaitOpts = {}): [boolean, WaitFn] {
