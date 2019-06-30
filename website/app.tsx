@@ -3,7 +3,7 @@ import React, { useCallback, useRef, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import createStore from 'use-simple-store'
 import DUMMY_TEXTS from './dummy_texts.json'
-import { createFixedWait } from '../src'
+import { createFixedWait, useWaitBuffer } from '../src'
 import delay from '@byungi/p-delay'
 import cx from 'clsx'
 
@@ -15,7 +15,7 @@ const WAITER_OPTS = [
     { delay: 300, duration : 900 }
 ]
 
-const store = createStore({ textIndex: 0, selectedIdx: 0 })
+const store = createStore({ textIdx: 0, selectedOptIdx: 0 })
 
 const App = () => {
     return (
@@ -30,11 +30,11 @@ const App = () => {
                 </header>
                 <Options />
                 <section className='btns'>
-                    {[50, 400].map(t => {
+                    {[50, 350].map(t => {
                         const onBtnClick = async () => {
                             await waitDelay(t)
                             store.update(s => {
-                                s.textIndex = (s.textIndex + 1) % DUMMY_TEXTS.length
+                                s.textIdx = (s.textIdx + 1) % DUMMY_TEXTS.length
                             })
                         }
                         return <button className='btns__btn' key={t} onClick={onBtnClick}>delay({t})</button>
@@ -49,17 +49,15 @@ const App = () => {
 }
 
 const Example = React.memo(({ className }: {className?: string}) => {
-    const { textIndex, selectedIdx } = store.useStore()
-    const isWaiting = waitDelay.useWait(WAITER_OPTS[selectedIdx])
-
-    const prevRef = useRef(textIndex)
-    useEffect(() => { prevRef.current = textIndex }, [textIndex])
+    const { textIdx: _textIdx, selectedOptIdx } = store.useStore()
+    const isWaiting = waitDelay.useWait(WAITER_OPTS[selectedOptIdx])
+    const textIdx = useWaitBuffer(isWaiting, _textIdx)
 
     return (
         <div className={cx(className, 'exam')}>
             {isWaiting && <Spinner className='exam__spinner' />}
             <div className={cx('exam__inner', { 'exam__inner--loading': isWaiting })}>
-                {DUMMY_TEXTS[isWaiting ? prevRef.current : textIndex]}
+                {DUMMY_TEXTS[textIdx]}
             </div>
         </div>)
 })
@@ -75,13 +73,13 @@ const Spinner = React.memo(({ className }: {className?: string}) => {
 })
 
 const Options = React.memo(() => {
-    const selectedIdx = store.useStore(s => s.selectedIdx)
+    const selectedIdx = store.useStore(s => s.selectedOptIdx)
 
     return (
         <section className='opts'>
             {WAITER_OPTS.map((opt, idx) => {
                 const onOptChange = useCallback(() => {
-                    store.update(s => { s.selectedIdx = idx })
+                    store.update(s => { s.selectedOptIdx = idx })
                 }, [])
 
                 return (
