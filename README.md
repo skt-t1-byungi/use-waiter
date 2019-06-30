@@ -4,6 +4,9 @@
 [![npm](https://flat.badgen.net/npm/v/use-waiter)](https://www.npmjs.com/package/use-waiter)
 [![license](https://flat.badgen.net/github/license/skt-t1-byungi/use-waiter)](https://github.com/skt-t1-byungi/use-waiter/blob/master/LICENSE)
 
+##### Demo
+https://skt-t1-byungi.github.io/use-waiter/
+
 ## Install
 ```sh
 npm i use-waiter
@@ -34,7 +37,7 @@ function App(){
 
 ## API
 ### wait(name, order)
-Wait for an order. Orders should be promise or function. Returns the order promise.
+Wait for an asynchronous order. Orders should be promise or function. Returns the order promise.
 
 ```js
 // promise order

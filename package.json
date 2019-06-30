@@ -5,6 +5,7 @@
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "repository": "https://github.com/skt-t1-byungi/use-waiter",
+    "homepage": "https://skt-t1-byungi.github.io/use-waiter/",
     "author": "skt-t1-byungi <tiniwz@gmail.com>",
     "keywords": [
         "react",
