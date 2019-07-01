@@ -149,6 +149,8 @@ This is useful if you want to show the results of the request after waiting.
 
 ```js
 function App(){
+    import {useWait, useWaitBuffer} from 'use-waiter'
+
     const {fetchedData: realData} = useContext(ApiContext)
     const isWaiting = useWait('API_FETCHED_DATA', {duration: 600})
     const displayData = useWaitBuffer(isWaiting, realData)

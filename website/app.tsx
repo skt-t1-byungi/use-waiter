@@ -11,8 +11,8 @@ const waitDelay = createFixedWait(delay)
 
 const WAITER_OPTS = [
     { delay: 0, duration : 0 },
-    { delay: 500, duration : 0 },
-    { delay: 500, duration : 900 }
+    { delay: 300, duration : 0 },
+    { delay: 300, duration : 900 }
 ]
 
 const store = createStore({ textIdx: 0, selectedOptIdx: 0 })
@@ -30,7 +30,7 @@ const App = () => {
                 </header>
                 <Options className='main__opts' />
                 <section className='btns main__btns'>
-                    {[50, 550].map(t => {
+                    {[50, 400].map(t => {
                         const onBtnClick = async () => {
                             await waitDelay(t)
                             store.update(s => {
