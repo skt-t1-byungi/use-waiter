@@ -56,9 +56,9 @@ const Example = React.memo(({ className }: {className?: string}) => {
 
     return (
         <div className={cx(className, 'exam')}>
-            {!isNoneOpt && isWaiting && <Spinner className='exam__spinner' />}
             <div className={cx('exam__inner', { 'exam__inner--loading': !isNoneOpt && isWaiting })}>
                 {DUMMY_TEXTS[isNoneOpt ? textIdx : showIdx]}
+                {!isNoneOpt && isWaiting && <Spinner className='exam__spinner' />}
             </div>
         </div>)
 })
