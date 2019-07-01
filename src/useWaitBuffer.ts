@@ -5,7 +5,7 @@ export default function useWaitBuffer<T> (isWaiting: boolean, val: T) {
 
     useEffect(() => {
         if (!isWaiting) bufRef.current = val
-    }, [val])
+    }, [isWaiting, val])
 
     return isWaiting ? bufRef.current : val
 }
