@@ -143,5 +143,19 @@ function App(){
 }
 ```
 
+### useWaitBuffer(isWaiting, value)
+If you use `duration`, you are still `waiting`, even though the actual asynchronous request is finished.
+This is useful if you want to show the results of the request after waiting.
+
+```js
+function App(){
+    const {fetchedData: realData} = useContext(ApiContext)
+    const isWaiting = useWait('API_FETCHED_DATA', {duration: 600})
+    const displayData = useWaitBuffer(isWaiting, realData)
+
+    /* ... */
+}
+```
+
 ## License
 MIT
