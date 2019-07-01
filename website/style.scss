@@ -146,9 +146,9 @@ html, body{
 
     &__btn{
         font-size: em(16px);
-        @include column(2, em(12px));
+        @include column(3, em(12px));
         font-family: 'Overpass Mono', monospace;
-        padding: em(20px) 0;
+        padding: em(18px) 0;
         color: #222;
     }
 }

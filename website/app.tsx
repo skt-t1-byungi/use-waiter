@@ -30,7 +30,7 @@ const App = () => {
                 </header>
                 <Options className='main__opts' />
                 <section className='btns main__btns'>
-                    {[50, 400].map(t => {
+                    {[50, 400, 800].map(t => {
                         const onBtnClick = async () => {
                             await waitDelay(t)
                             store.update(s => {
