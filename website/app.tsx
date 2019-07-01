@@ -11,8 +11,8 @@ const waitDelay = createFixedWait(delay)
 
 const WAITER_OPTS = [
     { delay: 0, duration : 0 },
-    { delay: 300, duration : 0 },
-    { delay: 300, duration : 900 }
+    { delay: 500, duration : 0 },
+    { delay: 500, duration : 900 }
 ]
 
 const store = createStore({ textIdx: 0, selectedOptIdx: 0 })
@@ -20,17 +20,17 @@ const store = createStore({ textIdx: 0, selectedOptIdx: 0 })
 const App = () => {
     return (
     <div className='app'>
-        <Example className='app__exam' />
-        <main className='app__main main'>
+        <Example className='app__sec' />
+        <main className='app__sec main'>
             <div className='main__inner'>
-                <header className='head'>
+                <header className='head main__head'>
                     <div className='head__logo'>🤵</div>
                     <h1 className='head__title'>use-waiter</h1>
                     <p className='head__desc'>A react hook to wait for an asynchronous order.</p>
                 </header>
-                <Options />
-                <section className='btns'>
-                    {[50, 350].map(t => {
+                <Options className='main__opts' />
+                <section className='btns main__btns'>
+                    {[50, 550].map(t => {
                         const onBtnClick = async () => {
                             await waitDelay(t)
                             store.update(s => {
@@ -40,7 +40,7 @@ const App = () => {
                         return <button className='btns__btn' key={t} onClick={onBtnClick}>delay({t})</button>
                     })}
                 </section>
-                <footer className='foot'>
+                <footer className='foot main__foot'>
                     <a className='foot__link' href='https://github.com/skt-t1-byungi/use-waiter'>github</a> / MIT
                 </footer>
             </div>
@@ -49,15 +49,16 @@ const App = () => {
 }
 
 const Example = React.memo(({ className }: {className?: string}) => {
-    const { textIdx: _textIdx, selectedOptIdx } = store.useStore()
+    const { textIdx, selectedOptIdx } = store.useStore()
     const isWaiting = waitDelay.useWait(WAITER_OPTS[selectedOptIdx])
-    const textIdx = useWaitBuffer(isWaiting, _textIdx)
+    const showIdx = useWaitBuffer(isWaiting, textIdx)
+    const isNoneOpt = selectedOptIdx === -1
 
     return (
         <div className={cx(className, 'exam')}>
-            {isWaiting && <Spinner className='exam__spinner' />}
-            <div className={cx('exam__inner', { 'exam__inner--loading': isWaiting })}>
-                {DUMMY_TEXTS[textIdx]}
+            {!isNoneOpt && isWaiting && <Spinner className='exam__spinner' />}
+            <div className={cx('exam__inner', { 'exam__inner--loading': !isNoneOpt && isWaiting })}>
+                {DUMMY_TEXTS[isNoneOpt ? textIdx : showIdx]}
             </div>
         </div>)
 })
@@ -72,13 +73,26 @@ const Spinner = React.memo(({ className }: {className?: string}) => {
         </div>)
 })
 
-const Options = React.memo(() => {
+const Options = React.memo(({ className }: {className?: string}) => {
     const selectedIdx = store.useStore(s => s.selectedOptIdx)
+    const onNoneClick = useCallback(() => {
+        store.update(s => { s.selectedOptIdx = -1 })
+    }, [])
 
     return (
-        <section className='opts'>
+        <section className={cx(className, 'opts')}>
+             <label className='opts__opt'>
+                <input
+                    name='opts'
+                    type='radio'
+                    className='opts__radio'
+                    onChange={onNoneClick}
+                    checked={selectedIdx === -1}
+                />
+                NO LOADER
+            </label>
             {WAITER_OPTS.map((opt, idx) => {
-                const onOptChange = useCallback(() => {
+                const onOptClick = useCallback(() => {
                     store.update(s => { s.selectedOptIdx = idx })
                 }, [])
 
@@ -88,7 +102,7 @@ const Options = React.memo(() => {
                             name='opts'
                             type='radio'
                             className='opts__radio'
-                            onChange={onOptChange}
+                            onChange={onOptClick}
                             checked={idx === selectedIdx}
                         />
                         {`useWait('DELAY', {delay: ${opt.delay}, duration: ${opt.duration}})`}

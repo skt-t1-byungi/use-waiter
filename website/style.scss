@@ -1,11 +1,17 @@
 @import '~thejungle/reset';
+@import '~thejungle/media';
 @import '~thejungle';
 
 $g-spinner-size: 80px;
 
 html,body{
     font-family: 'Overpass Mono', monospace;
+    font-size: 16px;
     color: #222;
+
+    @include media('<=1500px'){ font-size: 14px; }
+    @include media('<=768px'){ font-size: 12px; }
+    @include media('<=480px'){ font-size: 10px; }
 }
 
 .app{
@@ -14,18 +20,29 @@ html,body{
     min-height: 100vh;
     align-items: stretch;
 
-    &__exam{ flex: 0 0 50%; }
-    &__main{ flex: 0 0 50%; }
+    @include media('<=1200px'){ flex-direction: column-reverse }
+
+    &__sec{ flex: 0 0 50%; }
 }
 
 .exam{
     font-size: 1rem;
     background: #17223b;
     color: #f1f1e6;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 em(80px);
+    justify-content: flex-end;
+
+    @include media('<=1200px'){ justify-content: center }
+
+    @include media('<=1200px'){
+        padding: em(40px) em(80px);
+        justify-content: center;
+    }
+
+    @include media('<=768px'){ padding: em(20px) em(40px); }
 
     &__spinner{
         top: calc(50% - #{$g-spinner-size / 2});
@@ -33,57 +50,73 @@ html,body{
     }
 
     &__inner{
-        width: 65%;
+        width: 100%;
         font-size: em(20px);
+        max-width: em(500px, 20px);
         line-height: 1.6;
-        transition: opacity ease 0.3s;
+        transition: opacity ease 0.2s;
 
-        &--loading{
-            opacity: 0.2;
-        }
+        @include media('<=1200px'){ max-width: 80%; }
+        @include media('<=768px'){ max-width: unset; }
+
+        &--loading{ opacity: 0.2; }
     }
 }
 
 .main{
     font-size: 1rem;
     display: flex;
-    justify-content: center;
     align-items: center;
+    padding: 0 em(80px);
+
+    @include media('<=1200px'){
+        padding: em(40px) em(80px);
+        justify-content: center;
+    }
+
+    @include media('<=768px'){ padding: em(20px) em(40px); }
 
     &__inner{
-        font-size: em(20px);
+        width: 100%;
         line-height: 1.6;
-        width: 70%
+        max-width: em(580px);
+
+        @include media('<=1200px'){ max-width: 80%; }
+        @include media('<=768px'){ max-width: unset; }
     }
+
+    &__head{ margin-bottom: em(40px); }
+    &__opts{ margin-bottom: em(20px); }
+    &__btns{ margin-bottom: em(40px); }
 }
 
 .head{
     font-size: 1rem;
     text-align: center;
-    margin-bottom: em(60px);
     position: relative;
 
     &::after{
-        @include size(50%, em(45px));
+        @include size(50%, em(50px));
         content: '';
         display: block;
         position: absolute;
         z-index: -1;
-        bottom: em(10px); left: 30%;
+        bottom: em(5px); left: 30%;
         background: #FFF7D6;
     }
 
     &__logo{
         line-height: 1;
-        font-size: em(100px);
-        margin-bottom: em(20px, 100px);
+        font-size: em(92px);
+        margin-bottom: em(30px, 92px);
+        padding-top: em(20px, 92px);
     }
 
     &__title{
         font-family: 'Fredoka One', cursive;
         line-height: 1;
         font-size: em(42px);
-        margin-bottom: em(10px, 42px);
+        margin-bottom: em(15px, 42px);
     }
 
     &__desc{
@@ -94,31 +127,29 @@ html,body{
 
 .opts{
     font-size: 1em;
-    margin-bottom: em(15px);
 
     &__opt{
-        font-size: 14px;
         display: block;
         background: #f6f9ff;
         border: 1px solid #e5edffa6;
-        padding: 12px 28px;
-        margin-bottom: em(15px, 14px);
+        padding: em(18px) em(28px);
         border-radius: 10px;
+
+        &:not(last-child){ margin-bottom: em(10px); }
     }
 
     &__radio{
-        margin-right: em(10px, 14px);
+        margin-right: em(18px);
         vertical-align: middle
     }
 }
 
 .btns{
     font-size: 1rem;
-    margin-bottom: em(60px);
 
     &__btn{
-        @include column(2, em(20px, 14px));
-        font-size: em(14px);
+        font-size: em(16px);
+        @include column(2, em(12px));
         font-family: 'Overpass Mono', monospace;
         padding: em(20px) 0;
         color: #222;
@@ -128,15 +159,21 @@ html,body{
 .foot{
     font-size: 1rem;
     text-align: center;
-    padding: em(40px);
+    padding: em(40px) 0;
+
+    @include media('<=1200px'){
+        padding: 0;
+        position: fixed;
+        top: em(5px); right: em(10px);
+    }
 
     &__link{
         $color: #746549;
-        $color-active: lighten($color, $amount: 15%);
+        $color-active: lighten($color, $amount: 18%);
 
         color: $color;
         text-decoration: none;
-        border-bottom: 1px dotted $color-active;
+        border-bottom: 1px dashed $color-active;
 
         &:hover{ color: $color-active }
     }
@@ -144,7 +181,7 @@ html,body{
 
 .spinner{
     $size: $g-spinner-size;
-    $moved: $size*3/5;
+    $moved: $size*5/7;
 
     font-size: 1rem;
     position: absolute;
