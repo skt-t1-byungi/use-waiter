@@ -1,4 +1,4 @@
-import { Order, WaitOpts, WaitFn } from './types'
+import { Order, WaitOpts } from './types'
 import { useState, useMemo, useLayoutEffect } from 'react'
 import createDuration from 'rsup-duration'
 import orderFinally from './orderFinally'

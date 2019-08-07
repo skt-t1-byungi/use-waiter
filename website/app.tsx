@@ -1,5 +1,4 @@
-// tslint:disable: max-line-length
-import React, { useCallback, useRef, useEffect } from 'react'
+import React, { useCallback } from 'react'
 import ReactDOM from 'react-dom'
 import createStore from 'use-simple-store'
 import DUMMY_TEXTS from './dummy_texts.json'
