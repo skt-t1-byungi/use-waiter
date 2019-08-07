@@ -34,3 +34,12 @@ test('clear not used', async t => {
     um2()
     t.falsy((w as any)._waiters.a)
 })
+
+test('At the time of initial rendering, duration should work immediately if waiting.', async t => {
+    const w = new Waiter()
+    w.wait('a', delay(50))
+    const { result } = renderHook(() => w.useWait('a', { delay: 30, duration: 100 }))
+    t.true(result.current)
+    await delay(50)
+    t.true(result.current)
+})
