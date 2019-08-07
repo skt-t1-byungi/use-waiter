@@ -20,7 +20,7 @@
     "license": "MIT",
     "scripts": {
         "dev": "parcel website/index.html -d public",
-        "website": "parcel build website/index.html -d public --public-url ./  --no-source-maps",
+        "website": "parcel build website/index.html -d public --public-url ./ --no-source-maps",
         "deploy": "rm -rf public && npm run website && gh-pages -d public",
         "test": "ava",
         "build": "rm -rf dist && tsc",
@@ -44,7 +44,7 @@
         "@types/react-dom": "^16.8.5",
         "ava": "^2.2.0",
         "clsx": "^1.0.4",
-        "gh-pages": "^2.1.0",
+        "gh-pages": "2.0.1",
         "parcel-bundler": "^1.12.3",
         "react": "^16.8.6",
         "react-dom": "^16.8.6",
