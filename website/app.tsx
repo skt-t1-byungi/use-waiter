@@ -47,22 +47,22 @@ const App = () => {
         </div>)
 }
 
-const Example = React.memo(({ className }: {className?: string}) => {
+const Example = ({ className }: {className?: string}) => {
     const { textIdx, selectedOptIdx } = store.useStore()
-    const isWaiting = waitDelay.useWait(WAITER_OPTS[selectedOptIdx])
-    const showIdx = useWaitBuffer(isWaiting, textIdx)
     const isNoneOpt = selectedOptIdx === -1
+    const isWaiting = waitDelay.useWait(WAITER_OPTS[selectedOptIdx]) && !isNoneOpt
+    const showIdx = useWaitBuffer(isWaiting, textIdx)
 
     return (
         <div className={cx(className, 'exam')}>
-            <div className={cx('exam__inner', { 'exam__inner--loading': !isNoneOpt && isWaiting })}>
-                {DUMMY_TEXTS[isNoneOpt ? textIdx : showIdx]}
-                {!isNoneOpt && isWaiting && <Spinner className='exam__spinner' />}
+            <div className={cx('exam__inner', { 'exam__inner--loading': isWaiting })}>
+                {DUMMY_TEXTS[showIdx]}
+                {isWaiting && <Spinner className='exam__spinner' />}
             </div>
         </div>)
-})
+}
 
-const Spinner = React.memo(({ className }: {className?: string}) => {
+const Spinner = ({ className }: {className?: string}) => {
     return (
         <div className={cx(className, 'spinner')}>
             <div className='spinner__i spinner__i--1' />
@@ -70,14 +70,10 @@ const Spinner = React.memo(({ className }: {className?: string}) => {
             <div className='spinner__i spinner__i--3' />
             <div className='spinner__i spinner__i--4' />
         </div>)
-})
+}
 
-const Options = React.memo(({ className }: {className?: string}) => {
+const Options = ({ className }: {className?: string}) => {
     const selectedIdx = store.useStore(s => s.selectedOptIdx)
-    const onNoneClick = useCallback(() => {
-        store.update(s => { s.selectedOptIdx = -1 })
-    }, [])
-
     return (
         <section className={cx(className, 'opts')}>
             <label className='opts__opt'>
@@ -85,29 +81,24 @@ const Options = React.memo(({ className }: {className?: string}) => {
                     name='opts'
                     type='radio'
                     className='opts__radio'
-                    onChange={onNoneClick}
+                    onChange={() => store.update(s => { s.selectedOptIdx = -1 })}
                     checked={selectedIdx === -1}
                 />
                 NO LOADER
             </label>
-            {WAITER_OPTS.map((opt, idx) => {
-                const onOptClick = useCallback(() => {
-                    store.update(s => { s.selectedOptIdx = idx })
-                }, [idx])
-
-                return (
-                    <label className='opts__opt' key={idx}>
-                        <input
-                            name='opts'
-                            type='radio'
-                            className='opts__radio'
-                            onChange={onOptClick}
-                            checked={idx === selectedIdx}
-                        />
-                        {`useWait('DELAY', {delay: ${opt.delay}, duration: ${opt.duration}})`}
-                    </label>)
-            })}
+            {WAITER_OPTS.map((opt, idx) => (
+                <label className='opts__opt' key={idx}>
+                    <input
+                        name='opts'
+                        type='radio'
+                        className='opts__radio'
+                        onChange={() => store.update(s => { s.selectedOptIdx = idx })}
+                        checked={idx === selectedIdx}
+                    />
+                    {`useWait('DELAY', {delay: ${opt.delay}, duration: ${opt.duration}})`}
+                </label>)
+            )}
         </section>)
-})
+}
 
 ReactDOM.render(<App />, document.getElementById('app'))
