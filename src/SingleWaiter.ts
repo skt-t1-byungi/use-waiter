@@ -31,7 +31,7 @@ export default class SingleWaiter {
         }
     }
 
-    public wait<T> (order: Order<T>) {
+    wait<T> (order: Order<T>) {
         if (++this._count === 1) this._emit()
 
         return orderFinally(order, () => {
@@ -40,7 +40,7 @@ export default class SingleWaiter {
     }
 
     // tslint:disable-next-line: cognitive-complexity
-    public useWait ({ delay= 0, duration= 0 }: WaitOpts= {}) {
+    useWait ({ delay = 0, duration = 0 }: WaitOpts = {}) {
         const [isWaiting, setWaiting] = useState(this.isWaiting)
 
         const memoUnSubscriber = useMemo(() => {

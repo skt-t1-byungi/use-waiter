@@ -33,5 +33,6 @@ test('function type order', async t => {
 
 test('handled errors should be silent.', async t => {
     const w = new SingleWaiter()
-    await t.notThrowsAsync(w.wait(Promise.reject('error')).catch(() => undefined))
+    // eslint-disable-next-line prefer-promise-reject-errors
+    await t.notThrowsAsync(w.wait(Promise.reject('error')).catch(() => {}))
 })

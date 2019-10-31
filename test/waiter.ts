@@ -1,5 +1,5 @@
 import { serial as test } from 'ava'
-import { Waiter } from '../src/'
+import { Waiter } from '../src'
 import { renderHook } from '@testing-library/react-hooks'
 import delay from '@byungi/p-delay'
 

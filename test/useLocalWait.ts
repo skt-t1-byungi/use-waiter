@@ -16,7 +16,7 @@ test('change isWaiting', async t => {
 
 test('on overlapped', async t => {
     let calls = 0
-    const { result: { current: [,wait] } } = renderHook(() => (calls++,useLocalWait()))
+    const { result: { current: [, wait] } } = renderHook(() => (calls++, useLocalWait()))
 
     for (let i = 0; i < 4; i++) {
         wait(delay(100))

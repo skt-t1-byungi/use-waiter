@@ -11,7 +11,7 @@ export default class Waiter {
         this.useWait = this.useWait.bind(this)
     }
 
-    public isWaiting (name: string | number) {
+    isWaiting (name: string | number) {
         return Boolean(this._waiters[name] && this._waiters[name].isWaiting)
     }
 
@@ -19,7 +19,7 @@ export default class Waiter {
         return this._waiters[name] || (this._waiters[name] = new SingleWaiter())
     }
 
-    public wait <T> (name: string | number, order: Order<T>) {
+    wait <T> (name: string | number, order: Order<T>) {
         const waiter = this._getWaiter(name)
 
         return orderFinally(waiter.wait(order), () => {
@@ -27,7 +27,7 @@ export default class Waiter {
         })
     }
 
-    public useWait (name: string | number, opts: WaitOpts= {}) {
+    useWait (name: string | number, opts: WaitOpts = {}) {
         const waiter = this._getWaiter(name)
         const isWaiting = waiter.useWait(opts)
 
