@@ -148,12 +148,12 @@ If you use `duration`, you are still `waiting`, even though the actual asynchron
 This is useful if you want to show the results of the request after waiting.
 
 ```js
-function App(){
-    import {useWait, useWaitBuffer} from 'use-waiter'
+import {useWait, useWaitBuffer} from 'use-waiter'
 
-    const {fetchedData: realData} = useContext(ApiContext)
+function App(){
+    const {data} = useContext(ApiContext)
     const isWaiting = useWait('API_FETCHED_DATA', {duration: 600})
-    const displayData = useWaitBuffer(isWaiting, realData)
+    const displayData = useWaitBuffer(isWaiting, data)
 
     /* ... */
 }
