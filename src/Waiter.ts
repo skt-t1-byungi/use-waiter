@@ -1,7 +1,7 @@
 import SingleWaiter from './SingleWaiter'
 import { useLayoutEffect } from 'react'
 import { WaitOpts, Order } from './types'
-import orderFinally from './orderFinally'
+import promiseFinally from './promiseFinally'
 
 export default class Waiter {
     private _waiters: Record<string, SingleWaiter> = Object.create(null)
@@ -22,7 +22,7 @@ export default class Waiter {
     wait <T> (name: string | number, order: Order<T>) {
         const waiter = this._getWaiter(name)
 
-        return orderFinally(waiter.wait(order), () => {
+        return promiseFinally(waiter.wait(order), () => {
             if (!waiter.isInUse) delete this._waiters[name]
         })
     }

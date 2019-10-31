@@ -1,7 +1,7 @@
 import { Order, WaitOpts } from './types'
 import { useState, useMemo, useLayoutEffect } from 'react'
 import createDuration from 'rsup-duration'
-import orderFinally from './orderFinally'
+import promiseFinally from './promiseFinally'
 
 export default class SingleWaiter {
     private _count = 0
@@ -34,7 +34,7 @@ export default class SingleWaiter {
     wait<T> (order: Order<T>) {
         if (++this._count === 1) this._emit()
 
-        return orderFinally(order, () => {
+        return promiseFinally(order, () => {
             if (--this._count === 0) this._emit()
         })
     }
