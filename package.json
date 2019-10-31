@@ -67,6 +67,6 @@
         ]
     },
     "eslintConfig": {
-        "extends": "byungi/typescript"
+        "extends": "byungi/typescriptreact"
     }
 }

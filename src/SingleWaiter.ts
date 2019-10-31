@@ -50,7 +50,7 @@ export default class SingleWaiter {
             let next: boolean | null = null
             let unmounted = false
 
-            if (isWaiting && persister) {
+            if (this.isWaiting && persister) {
                 persister.start().then(afterDuration)
             }
 

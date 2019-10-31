@@ -33,7 +33,7 @@ export default class Waiter {
 
         useLayoutEffect(() => () => {
             if (!waiter.isInUse) delete this._waiters[name]
-        }, [])
+        }, [name, waiter.isInUse])
 
         return isWaiting
     }

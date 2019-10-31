@@ -65,10 +65,10 @@ const Example = React.memo(({ className }: {className?: string}) => {
 const Spinner = React.memo(({ className }: {className?: string}) => {
     return (
         <div className={cx(className, 'spinner')}>
-            <div className='spinner__i spinner__i--1'></div>
-            <div className='spinner__i spinner__i--2'></div>
-            <div className='spinner__i spinner__i--3'></div>
-            <div className='spinner__i spinner__i--4'></div>
+            <div className='spinner__i spinner__i--1' />
+            <div className='spinner__i spinner__i--2' />
+            <div className='spinner__i spinner__i--3' />
+            <div className='spinner__i spinner__i--4' />
         </div>)
 })
 
@@ -93,7 +93,7 @@ const Options = React.memo(({ className }: {className?: string}) => {
             {WAITER_OPTS.map((opt, idx) => {
                 const onOptClick = useCallback(() => {
                     store.update(s => { s.selectedOptIdx = idx })
-                }, [])
+                }, [idx])
 
                 return (
                     <label className='opts__opt' key={idx}>
