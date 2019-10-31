@@ -9,42 +9,42 @@ import cx from 'clsx'
 const waitDelay = createFixedWait(delay)
 
 const WAITER_OPTS = [
-    { delay: 0, duration : 0 },
-    { delay: 300, duration : 0 },
-    { delay: 300, duration : 900 }
+    { delay: 0, duration: 0 },
+    { delay: 300, duration: 0 },
+    { delay: 300, duration: 900 }
 ]
 
 const store = createStore({ textIdx: 0, selectedOptIdx: 0 })
 
 const App = () => {
     return (
-    <div className='app'>
-        <Example className='app__sec' />
-        <main className='app__sec main'>
-            <div className='main__inner'>
-                <header className='head main__head'>
-                    <div className='head__logo'>🤵</div>
-                    <h1 className='head__title'>use-waiter</h1>
-                    <p className='head__desc'>A react hook to wait for an asynchronous order.</p>
-                </header>
-                <Options className='main__opts' />
-                <section className='btns main__btns'>
-                    {[50, 400, 800].map(t => {
-                        const onBtnClick = async () => {
-                            await waitDelay(t)
-                            store.update(s => {
-                                s.textIdx = (s.textIdx + 1) % DUMMY_TEXTS.length
-                            })
-                        }
-                        return <button className='btns__btn' key={t} onClick={onBtnClick}>delay({t})</button>
-                    })}
-                </section>
-                <footer className='foot main__foot'>
-                    <a className='foot__link' href='https://github.com/skt-t1-byungi/use-waiter'>github</a> / MIT
-                </footer>
-            </div>
-        </main>
-   </div>)
+        <div className='app'>
+            <Example className='app__sec' />
+            <main className='app__sec main'>
+                <div className='main__inner'>
+                    <header className='head main__head'>
+                        <div className='head__logo'>🤵</div>
+                        <h1 className='head__title'>use-waiter</h1>
+                        <p className='head__desc'>A react hook to wait for an asynchronous order.</p>
+                    </header>
+                    <Options className='main__opts' />
+                    <section className='btns main__btns'>
+                        {[50, 400, 800].map(t => {
+                            const onBtnClick = async () => {
+                                await waitDelay(t)
+                                store.update(s => {
+                                    s.textIdx = (s.textIdx + 1) % DUMMY_TEXTS.length
+                                })
+                            }
+                            return <button className='btns__btn' key={t} onClick={onBtnClick}>delay({t})</button>
+                        })}
+                    </section>
+                    <footer className='foot main__foot'>
+                        <a className='foot__link' href='https://github.com/skt-t1-byungi/use-waiter'>github</a> / MIT
+                    </footer>
+                </div>
+            </main>
+        </div>)
 }
 
 const Example = React.memo(({ className }: {className?: string}) => {
@@ -80,7 +80,7 @@ const Options = React.memo(({ className }: {className?: string}) => {
 
     return (
         <section className={cx(className, 'opts')}>
-             <label className='opts__opt'>
+            <label className='opts__opt'>
                 <input
                     name='opts'
                     type='radio'
